@@ -29,3 +29,15 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     return res.status(401).json({ error: '[!] Token non valido o scaduto' });
   }
 }
+
+export function requireRole(...roles: Array<'user' | 'admin'>) {
+  return function (req: Request, res: Response, next: NextFunction) {
+    if (!req.user)
+      return res.status(401).json({ error: '[!] Autenticazione richiesta.' });
+
+    if (!roles.includes(req.user.role)) 
+      return res.status(403).json({ error: '[!] Permessi insufficienti.' });
+
+    return next();
+  }
+}
