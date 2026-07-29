@@ -7,6 +7,12 @@ export type CreateUserInput = {
   role?: 'user' | 'admin';
 };
 
+/**
+ * Metodo per la creazione di un nuovo utente.
+ * Effettua l'hashing della password e manda i dati al repository
+ * @param input 
+ * @returns 
+ */
 export async function createUser(input: CreateUserInput) {
   const passwordHashed = await hashPassword(input.password);
 
