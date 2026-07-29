@@ -14,7 +14,7 @@ app.use(cookieParser());
 
 // rotte
 app.use('/users', userRouter);
-app.use('auth', authRouter);
+app.use('/auth', authRouter);
 
 async function bootstrap() {
   await ensureDefaultAdmin();
