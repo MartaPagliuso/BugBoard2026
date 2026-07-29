@@ -1,5 +1,6 @@
 import { type Request, type Response } from "express";
-import { createUser } from "../repository/users.repository.js";
+import * as userService from '../service/user.service.js';
+import {z} from 'zod';
 
 export class UserController {
   /**
@@ -9,12 +10,8 @@ export class UserController {
    */
   static async createUserController(req: Request, res: Response) {
     try {
-      const { email, password, role } = req.body;
-
-      // delego l'operazione sul db al repository
-      await createUser({ email, password, role });
-
-      res.status(201).json({ message: 'Utente creato con successo.' });
+      const user = await userService.createUser(req.body);
+      return res.status(201).json(user);
     } catch (error) {
       res.status(500).json({ error: 'Errore durante la creazione di un nuovo utente.' });
     }

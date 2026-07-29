@@ -4,7 +4,7 @@ export const userRole = pgEnum('roles', ['user', 'admin']);
 
 export const users = table('users', {
   id: uuid('id').defaultRandom().primaryKey(),
-  email: text('email').notNull(),
+  email: text('email').notNull().unique(),
   password: text('password').notNull(),
   role: userRole('role').notNull().default('user'),
   mustChangePassword: boolean('must_change_password').notNull().default(true),
