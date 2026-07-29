@@ -16,3 +16,7 @@ export async function insertUser(user: InsertUser) {
   return created;
 }
 
+export async function findUserByEmail(email: string) {
+  const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  return user;
+}
