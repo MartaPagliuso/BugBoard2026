@@ -7,7 +7,7 @@ export const users = table('users', {
   email: text('email').notNull(),
   password: text('password').notNull(),
   role: userRole('role').notNull().default('user'),
-  mustChangePassword: boolean('must_change_password').notNull().default(false),
+  mustChangePassword: boolean('must_change_password').notNull().default(true),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 });
