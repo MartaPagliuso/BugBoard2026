@@ -1,6 +1,7 @@
 import { verifyPassword, hashPassword } from "../utils/password.js";
 import { createToken } from "../utils/jwt.js";
 import * as userRepository from '../repository/users.repository.js';
+import { createRefreshToken, hashRefreshToken } from "../utils/refresh.js";
 
 /**
  * Servizio che permette di effettuare il login. 
@@ -11,15 +12,19 @@ import * as userRepository from '../repository/users.repository.js';
  */
 export async function login(email: string, password: string) {
   const user = await userRepository.findUserByEmail(email);
-  const passwordVerificata = await verifyPassword(user.password, password);
-  
-  if (!passwordVerificata || !user)
-    throw new Error('[!] Errore: password non valida.');
+  if (!user)
+    throw new Error('[!] Credenziali non valide');
 
-  const token = createToken({ sub: user.id, role: user.role });
+  const passwordVerificata = await verifyPassword(user.password, password);
+  if (!passwordVerificata)
+    throw new Error('[!] Credenziali non valide');
+  
+  const refreshToken = createRefreshToken();
+  await userRepository.setRefreshTokenHash(user.id, hashRefreshToken(refreshToken));
 
   return {
-    token,
+    accessToken: createToken({ sub: user.id, role: user.role }),
+    refreshToken,
     user: {
       id: user.id,
       email: user.email,
@@ -29,7 +34,43 @@ export async function login(email: string, password: string) {
   };
 }
 
+/**
+ * Servizio che permette di fare il logout
+ * Annulla il refresh_token azzerando la colonna
+ * @param userId 
+ */
+export async function logout(userId: string) {
+  await userRepository.setRefreshTokenHash(userId, null);
+}
 
+/**
+ * Servizio che permette di aggiornare il refresh_token
+ * Genera un token nuovo e cancella il vecchio
+ * @param refreshToken 
+ * @returns 
+ */
+export async function refresh(refreshToken: string) {
+  const hash = hashRefreshToken(refreshToken);
+  const user = await userRepository.findUserByRefreshToken(hash); // ricerco in base al refresh_token così da non fidarci di nessun dato proveniente dal client
+
+  if (!user)
+    throw new Error('[!] Refresh Token non valido');
+
+  const newRefreshToken = createRefreshToken();
+  await userRepository.setRefreshTokenHash(user.id, hashRefreshToken(newRefreshToken));
+
+  return {
+    accessToken: createToken({ sub: user.id, role: user.role }),
+    refreshToken: newRefreshToken,
+  };
+}
+
+/**
+ * Servizio che permette di cambiare la password di un utente
+ * @param userId 
+ * @param currentPassword 
+ * @param newPassword 
+ */
 export async function changePassword(userId: string, currentPassword: string, newPassword: string) {
   const user = await userRepository.findUserById(userId);
   if (!user)

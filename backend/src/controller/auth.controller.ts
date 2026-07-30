@@ -12,6 +12,23 @@ const changePasswordSchema = z.object({
   newPassword: z.string().min(8),
 });
 
+/**
+   * Metodo che setta i cookie di autenticazione
+   * @param res 
+   * @param accessToken 
+   * @param refreshToken 
+   */
+  function setAuthCookie(res: Response, accessToken: string, refreshToken: string) {
+    const base = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict' as const,
+    };
+
+    res.cookie('access_token', accessToken, { ...base, maxAge: 15 * 60 * 1000 });
+    res.cookie('refresh_token', refreshToken, { ...base, maxAge: 7 * 24 * 60 * 60 * 1000, path:'/auth/refresh' });
+  }
+
 export class AuthController {
   /**
    * Metodo per effettuare il login di un utente
@@ -26,16 +43,11 @@ export class AuthController {
       return res.status(400).json({ error: '[!] Credenziali non valide.'});
 
     try {
-      const {token, user} = await authService.login(parsed.data.email, parsed.data.password);
+      const {accessToken, refreshToken, user} = await authService.login(parsed.data.email, parsed.data.password);
 
-      res.cookie('access_token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 15 * 60 * 1000,
-      });
-
+      setAuthCookie(res, accessToken, refreshToken);
       return res.status(200).json({ user });
+
     } catch (error) {
       if (error instanceof Error && error.message === '[!] Errore: password non valida.') {
         return res.status(401).json({ error: '[!] Errore: credenziali non valide.' });
@@ -53,10 +65,23 @@ export class AuthController {
    * @returns 
    */
   static async logout(req: Request, res: Response) {
+    try {
+      await authService.logout(req.user!.sub);
+    } catch (error) {
+      console.error(error);
+    }
+
     res.clearCookie('access_token');
+    res.clearCookie('refresh_token', { path: '/auth/refresh' });
     return res.status(200).json({ message: 'Logout effettuato con successo.' });
   }
 
+  /**
+   * Metodo che permette il cambio della password
+   * @param req 
+   * @param res 
+   * @returns 
+   */
   static async changePassword(req: Request, res: Response) {
     const parsed = changePasswordSchema.safeParse(req.body);
     if (!parsed.success)
@@ -78,6 +103,22 @@ export class AuthController {
 
       console.error(error);
       return res.status(500).json({ error: '[!] Errore durante il cambio password.' });
+    }
+  }
+
+  static async refresh(req: Request, res: Response) {
+    const token = req.cookies?.refresh_token;
+    if (!token)
+      return res.status(401).json({ error: '[!] Errore: refresh token assente' });
+
+    try {
+      const { accessToken, refreshToken } = await authService.refresh(token);
+      setAuthCookie(res, accessToken, refreshToken);
+      return res.status(200).json({ message: 'Token rinnovato' });
+    } catch (error) {
+      res.clearCookie('access_token');
+      res.clearCookie('refresh_token', { path: '/auth/refresh' });
+      return res.status(401).json({ error: '[!] Errore: Refresh Token non valido.' });
     }
   }
 }

@@ -6,14 +6,13 @@ import crypto from 'node:crypto';
 /**
  * Metodo che crea il refreshToken
  */
-export const createRefreshToken = () => {
+export const createRefreshToken = () =>
   crypto.randomBytes(48).toString('base64url');
-}
+
 
 /**
  * Metodo che hasha il refresh token per non salvarlo in chiaro
  * @param token 
  */
-export const hashRefreshToken = (token: string) => {
+export const hashRefreshToken = (token: string) => 
   crypto.createHash('sha256').update(token).digest('hex');
-}

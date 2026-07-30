@@ -50,3 +50,31 @@ export async function updatePassword(id: string, password: string) {
     })
     .where(eq(users.id, id));
 }
+
+/**
+ * Metodo che setta il refresh_token nel db
+ * @param id 
+ * @param hash 
+ */
+export async function setRefreshTokenHash(id: string, hash: string | null) {
+  await db
+    .update(users)
+    .set({ refreshTokenHash: hash, updatedAt: new Date() })
+    .where(eq(users.id, id));
+}
+
+/**
+ * Metodo che permette di trovare un utente in base al suo refresh_token
+ * Serve per cercare un utente senza affidarsi ai dati del client
+ * @param hash 
+ * @returns 
+ */
+export async function findUserByRefreshToken(hash: string) {
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.refreshTokenHash, hash))
+    .limit(1);
+  
+  return user;
+}
