@@ -7,6 +7,11 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8),
+});
+
 export class AuthController {
   /**
    * Metodo per effettuare il login di un utente
@@ -50,5 +55,29 @@ export class AuthController {
   static async logout(req: Request, res: Response) {
     res.clearCookie('access_token');
     return res.status(200).json({ message: 'Logout effettuato con successo.' });
+  }
+
+  static async changePassword(req: Request, res: Response) {
+    const parsed = changePasswordSchema.safeParse(req.body);
+    if (!parsed.success)
+      return res.status(400).json({ error: '[!] Errore: dati non validi.' });
+
+    try {
+      await authService.changePassword(
+        req.user!.sub,
+        parsed.data.currentPassword,
+        parsed.data.newPassword,
+      );
+
+      res.clearCookie('access_token');
+
+      return res.status(200).json({ message: 'Password aggiornata. Effettua nuovamente il login.' });
+    } catch (error) {
+      if (error instanceof Error && error.message === '[!] Credenziali non valide.')
+        return res.status(401).json({ error: '[!] Password attuale non corretta.' });
+
+      console.error(error);
+      return res.status(500).json({ error: '[!] Errore durante il cambio password.' });
+    }
   }
 }

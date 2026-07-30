@@ -28,3 +28,17 @@ export async function login(email: string, password: string) {
     },
   };
 }
+
+
+export async function changePassword(userId: string, currentPassword: string, newPassword: string) {
+  const user = await userRepository.findUserById(userId);
+  if (!user)
+    throw new Error('[!] Errore: utente non trovato.');
+
+  const passwordVerificata = await verifyPassword(user.password, currentPassword);
+
+  if (!passwordVerificata)
+    throw new Error('[!] Credenziali non valide.');
+
+  await userRepository.updatePassword(userId, await hashPassword(newPassword));
+}

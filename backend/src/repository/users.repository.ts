@@ -16,7 +16,37 @@ export async function insertUser(user: InsertUser) {
   return created;
 }
 
+/**
+ * Metodo che cerca un utente tramite la sua email
+ * @param email 
+ * @returns 
+ */
 export async function findUserByEmail(email: string) {
   const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
   return user;
+}
+
+/**
+ * Metodo che permette di trovare un utente tramite il suo id
+ * @param id 
+ * @returns 
+ */
+export async function findUserById(id: string) {
+  const [user] = await db.select().from(users).where(eq(users.id, id)).limit(1);
+  return user;
+}
+
+/**
+ * Metodo che permette di fare l'update della password
+ * @param id 
+ * @param password 
+ */
+export async function updatePassword(id: string, password: string) {
+  await db.update(users)
+    .set({
+      password: password,
+      mustChangePassword: false,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, id));
 }

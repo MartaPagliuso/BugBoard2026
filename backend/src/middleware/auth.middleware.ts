@@ -1,5 +1,6 @@
 import { type Request, type Response, type NextFunction } from "express";
 import { TokenPayload, verifyToken } from "../utils/jwt.js";
+import * as userRespository from "../repository/users.repository.js";
 
 declare global {
   namespace Express {
@@ -30,6 +31,11 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+/**
+ * Middleware che controlla il ruolo dell'utente autenticato
+ * @param roles 
+ * @returns 
+ */
 export function requireRole(...roles: Array<'user' | 'admin'>) {
   return function (req: Request, res: Response, next: NextFunction) {
     if (!req.user)
@@ -40,4 +46,26 @@ export function requireRole(...roles: Array<'user' | 'admin'>) {
 
     return next();
   }
+}
+
+/**
+ * Middleware che blocca l'utente se non ha cambiato la password
+ * @param req 
+ * @param res 
+ * @param next 
+ * @returns 
+ */
+export async function blockIfMustChangePassword(req: Request, res: Response, next: NextFunction) {
+  if (!req.user) return next();
+
+  const user = await userRespository.findUserById(req.user.sub);
+
+  if (user?.mustChangePassword) {
+    return res.status(403).json({
+      error: '[!] Devi cambiare la password prima di continuare.',
+      mustChangePassword: true,
+    });
+  }
+
+  return next();
 }
