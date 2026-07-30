@@ -9,7 +9,8 @@ export const users = table('users', {
   role: userRole('role').notNull().default('user'),
   mustChangePassword: boolean('must_change_password').notNull().default(true),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  refreshTokenHash: text('refresh_token_hash')
 });
 
 export type SelectUser = typeof users.$inferSelect;
