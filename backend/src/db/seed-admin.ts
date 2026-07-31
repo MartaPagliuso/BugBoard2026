@@ -16,6 +16,8 @@ export async function ensureDefaultAdmin(): Promise<void> {
   }
 
   await userRepository.insertUser({
+    nome: 'Admin',
+    cognome: 'Bugboard',
     email,
     password: await hashPassword(password),
     role: 'admin'
