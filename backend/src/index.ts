@@ -1,6 +1,7 @@
 import express, { type Express, type Request, type Response } from 'express';
 import { userRouter } from './routes/users.route.js';
 import { authRouter } from './routes/auth.route.js';
+import { issueRouter } from './routes/issue.route.js';
 import { ensureDefaultAdmin } from './db/seed-admin.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -15,6 +16,8 @@ app.use(cookieParser());
 // rotte
 app.use('/users', userRouter);
 app.use('/auth', authRouter);
+
+app.use('/issues', issueRouter);
 
 async function bootstrap() {
   await ensureDefaultAdmin();

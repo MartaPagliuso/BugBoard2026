@@ -15,7 +15,7 @@ export const issues = table('issues', {
   imageUrl: text('image_url'),
   
   authorId: uuid('author_id').notNull().references(() => users.id),
-  assigneeId: uuid('assignee_id').notNull().references(() => users.id),
+  assigneeId: uuid('assignee_id').references(() => users.id),
 
   dueDate: timestamp('due_date', { withTimezone: true }),
   resolvedAt: timestamp('resolved_at', { withTimezone: true}),
