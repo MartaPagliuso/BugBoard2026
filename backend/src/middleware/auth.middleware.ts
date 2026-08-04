@@ -1,6 +1,7 @@
 import { type Request, type Response, type NextFunction } from "express";
 import { TokenPayload, verifyToken } from "../utils/jwt.js";
 import * as userRespository from "../repository/users.repository.js";
+import { type UserRole } from '../db/schema/users.js';
 
 declare global {
   namespace Express {
@@ -36,7 +37,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
  * @param roles 
  * @returns 
  */
-export function requireRole(...roles: Array<'user' | 'admin'>) {
+export function requireRole(...roles: UserRole[]) {
   return function (req: Request, res: Response, next: NextFunction) {
     if (!req.user)
       return res.status(401).json({ error: '[!] Autenticazione richiesta.' });
@@ -66,6 +67,13 @@ export async function blockIfMustChangePassword(req: Request, res: Response, nex
       mustChangePassword: true,
     });
   }
+
+  return next();
+}
+
+export function denyViewers(req: Request, res: Response, next: NextFunction) {
+  if (req.user?.role === 'viewer')
+    return res.status(403).json({ error: '[!] Errore: account in sola lettura' });
 
   return next();
 }

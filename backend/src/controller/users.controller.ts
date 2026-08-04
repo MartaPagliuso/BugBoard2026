@@ -7,6 +7,7 @@ const createUserSchema = z.object({
   nome: z.string().min(1).max(50),
   cognome: z.string().min(1).max(50),
   password: z.string().min(8),
+  role: z.enum(['viewer', 'user']).optional(),
 });
 
 export class UserController {

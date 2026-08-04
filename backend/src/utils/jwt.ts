@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
+import { type UserRole } from '../db/schema/users.js';
 
 export type TokenPayload = {
   sub: string; // subject = id dell'utente
-  role: 'user' | 'admin';
+  role: UserRole;
 };
 
 const secret = process.env.JWT_SECRET;
