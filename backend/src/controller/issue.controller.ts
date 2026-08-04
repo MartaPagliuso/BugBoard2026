@@ -13,6 +13,14 @@ const idParamSchema = z.object({
   id: z.string().uuid(),
 });
 
+const assignSchema = z.object({
+  assigneeId: z.string().uuid(),
+});
+
+const statusSchema = z.object({
+  status: z.enum(['todo', 'in_progress', 'done', 'closed']),
+});
+
 export class IssueController {
 
   /**
@@ -36,6 +44,12 @@ export class IssueController {
     }
   }
 
+  /**
+   * Metodo che restituisce una issue tramite l'id
+   * @param req 
+   * @param res 
+   * @returns 
+   */
   static async getById(req: Request, res: Response) {
     const parsed = idParamSchema.safeParse(req.params);
     if (!parsed.success)
@@ -52,12 +66,73 @@ export class IssueController {
     }
   }
 
+  /**
+   * Metodo che mostra tutte le issue create
+   * @param req 
+   * @param res 
+   * @returns 
+   */
   static async list(req: Request, res: Response) {
     try {
       return res.status(200).json(await issueService.listIssues());
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: '[!] Errore durante il recupero delle issues.' });
+    }
+  }
+
+  /**
+   * Metodo che assegna una issue a un utente
+   * @param req 
+   * @param res 
+   * @returns 
+   */
+  static async assing(req: Request, res: Response) {
+    const params = idParamSchema.safeParse(req.params);
+    const body = assignSchema.safeParse(req.body);
+
+    if (!params.success || !body.success)
+      return res.status(400).json({ error: '[!] Errore: dati non validi.' });
+
+    try {
+      const issue = await issueService.assignIssue(params.data.id, body.data.assigneeId);
+      return res.status(200).json(issue);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === '[!] Issue non trovata') return res.status(400).json({ error: '[!] Errore: issue non trovata.' });
+        if (error.message === '[!] Assegnatario non trovato') return res.status(400).json({ error: '[!] Errore: assegnatario non valido' });
+        if (error.message === '[!] Assegnatario non valido') return res.status(400).json({ error: '[!] Errore: assegnatario non valido.' });
+      }
+
+      console.error(error);
+      return res.status(500).json({ error: '[!] Errore durante l\'assegnazione' });
+    }
+  }
+
+  static async updateStatus(req: Request, res: Response) {
+    const params = idParamSchema.safeParse(req.params);
+    const body = statusSchema.safeParse(req.body);
+
+    if (!params.success || !body.success)
+      return res.status(400).json({ error: '[!] Errore: dati non validi.' });
+
+    try {
+      const issue = await issueService.updateIssueStatus(
+        params.data.id,
+        body.data.status,
+        req.user!.sub,
+        req.user!.role,
+      );
+
+      return res.status(200).json(issue);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === '[!] Issue non trovata') return res.status(404).json({ error: 'Errore: issue non trovata.' });
+        if (error.message === '[!] Vietato') return res.status(403).json({ error: 'Errore: Solo l\'assegnatario può modificare lo stato.'});
+      }
+
+      console.error(error);
+      return res.status(500).json({ error: 'Errore durante l\'aggiornamento dello stato.' });
     }
   }
 }

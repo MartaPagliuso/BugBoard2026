@@ -28,3 +28,14 @@ export async function findIssueById(id: string) {
 export async function findAllIssue() {
   return db.select().from(issues).orderBy(desc(issues.createdAt));
 }
+
+/**
+ * Una sola funzione per tutti gli aggiornamenti
+ * @param id 
+ * @param data 
+ * @returns 
+ */
+export async function updateIssue(id: string, data: Partial<InsertIssue>) { // il repository resta ignorante su quali campi cambiano, decide il service
+  const [updated] = await db.update(issues).set(data).where(eq(issues.id, id)).returning();
+  return updated;
+}

@@ -1,4 +1,5 @@
 import * as issueRepository from "../repository/issues.repository.js";
+import * as userRepository from "../repository/users.repository.js";
 
 export type CreateIssueInput = {
   title: string;
@@ -6,6 +7,8 @@ export type CreateIssueInput = {
   type: 'question' | 'bug' | 'documentation' | 'feature';
   priority?: 'low' | 'medium' | 'high' | 'critical';
 }
+
+type IssueStatus = 'todo' | 'in_progress' | 'done' | 'closed';
 
 /**
  * Servizio che permette di creare una nuova issue
@@ -36,6 +39,66 @@ export async function getIssueById(id: string) {
   return issue;
 }
 
+/**
+ * Mostra l'elenco di tutte le issue
+ * @returns 
+ */
 export async function listIssues() {
   return issueRepository.findAllIssue();
+}
+
+/**
+ * Metodo che permette di assegnare una issue a un utente
+ * @param issueId 
+ * @param assigneeId 
+ */
+export async function assignIssue(issueId: string, assigneeId: string) {
+  const issue = await issueRepository.findIssueById(issueId);
+  if (!issue)
+    throw new Error('[!] Issue non trovata');
+
+  const assignee = await userRepository.findUserById(assigneeId);
+  if (!assignee)
+    throw new Error('[!] Assegnatario non trovato');
+
+  if (assignee.role === 'viewer')
+    throw new Error('[!] Assegnatario non valido');
+
+  return issueRepository.updateIssue(issueId, {
+    assigneeId,
+    updatedAt: new Date(),
+  });
+}
+
+/**
+ * Metodo che aggiorna lo stato della issue
+ * @param issueId 
+ * @param newStatus 
+ * @param userId 
+ * @param userRole 
+ * @returns 
+ */
+export async function updateIssueStatus(
+  issueId: string,
+  newStatus: IssueStatus,
+  userId: string,
+  userRole: 'viewer' | 'user' | 'admin',
+) {
+  const issue = await issueRepository.findIssueById(issueId);
+  if (!issue)
+    throw new Error('[!] Issue non trovata');
+
+  const isAssignee = issue.assigneeId === userId;
+  const isAdmin = userRole === 'admin';
+
+  if (!isAssignee && !isAdmin)
+    throw new Error('[!] Vietato')
+
+  const resolvedAt = newStatus === 'done' && !issue.resolvedAt ? new Date() : issue.resolvedAt;
+
+  return issueRepository.updateIssue(issueId, {
+    status: newStatus,
+    resolvedAt,
+    updatedAt: new Date(),
+  });
 }
