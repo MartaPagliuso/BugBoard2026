@@ -5,6 +5,7 @@ import { issueRouter } from './routes/issue.route.js';
 import { ensureDefaultAdmin } from './db/seed-admin.js';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import { dashboardRouter } from './routes/dashboard.route.js';
 
 const app: Express = express();
 const PORT = 3000;
@@ -18,6 +19,8 @@ app.use('/users', userRouter);
 app.use('/auth', authRouter);
 
 app.use('/issues', issueRouter);
+
+app.use('/dashboard', dashboardRouter);
 
 async function bootstrap() {
   await ensureDefaultAdmin();
