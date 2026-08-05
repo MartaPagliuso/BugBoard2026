@@ -1,6 +1,15 @@
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, and, or, ilike, type SQL } from 'drizzle-orm';
 import { db } from "../db/db.js";
 import { issues, type InsertIssue } from "../db/schema/issues.js";
+
+export type IssueFilters = {
+  q?: string;
+  status?: 'todo' | 'in_progress' | 'done' | 'closed';
+  type?: 'question' | 'bug' | 'documentation' | 'feature';
+  priority?: 'low' | 'medium' | 'high' | 'critical';
+  assigneeId?: string;
+  authorId?: string;
+}
 
 /**
  * Metodo che permette di salvare una nuova issue sul db
@@ -25,8 +34,26 @@ export async function findIssueById(id: string) {
  * Metodo che restituisce tutte le issue salvate nel db
  * @returns 
  */
-export async function findAllIssue() {
-  return db.select().from(issues).orderBy(desc(issues.createdAt));
+export async function findIssues(filters: IssueFilters = {}) {
+  const conditions: SQL[] = [];
+
+  if (filters.q) {
+    const pattern = `%${filters.q}%`;
+    conditions.push(or(
+      ilike(issues.title, pattern),
+      ilike(issues.description, pattern),
+    )!);
+  }
+
+  if (filters.status) conditions.push(eq(issues.status, filters.status));
+  if (filters.type) conditions.push(eq(issues.type, filters.type));
+  if (filters.priority) conditions.push(eq(issues.priority, issues.priority));
+  if (filters.assigneeId) conditions.push(eq(issues.assigneeId, filters.assigneeId));
+  if (filters.authorId) conditions.push(eq(issues.authorId, filters.authorId));
+
+  return db.select().from(issues)
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(desc(issues.createdAt));
 }
 
 /**

@@ -21,6 +21,15 @@ const statusSchema = z.object({
   status: z.enum(['todo', 'in_progress', 'done', 'closed']),
 });
 
+const issueFiltersSchema = z.object({
+  q: z.string().min(1).max(100).optional(),
+  status: z.enum(['todo', 'in_progress', 'done', 'closed']).optional(),
+  type: z.enum(['question', 'bug', 'documentation', 'feature']).optional(),
+  priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
+  assigneeId: z.string().uuid().optional(),
+  authorId: z.string().uuid().optional(),
+});
+
 export class IssueController {
 
   /**
@@ -73,8 +82,13 @@ export class IssueController {
    * @returns 
    */
   static async list(req: Request, res: Response) {
+    const parsed = issueFiltersSchema.safeParse(req.query);
+    if (!parsed.success)
+      return res.status(400).json({ error: '[!] Errore: filtri non validi.', details: parsed.error.flatten() });
+
     try {
-      return res.status(200).json(await issueService.listIssues());
+      const issues = await issueService.listIssues(parsed.data);
+      return res.status(200).json(issues);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: '[!] Errore durante il recupero delle issues.' });
@@ -87,7 +101,7 @@ export class IssueController {
    * @param res 
    * @returns 
    */
-  static async assing(req: Request, res: Response) {
+  static async assign(req: Request, res: Response) {
     const params = idParamSchema.safeParse(req.params);
     const body = assignSchema.safeParse(req.body);
 
@@ -100,7 +114,7 @@ export class IssueController {
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === '[!] Issue non trovata') return res.status(400).json({ error: '[!] Errore: issue non trovata.' });
-        if (error.message === '[!] Assegnatario non trovato') return res.status(400).json({ error: '[!] Errore: assegnatario non valido' });
+        if (error.message === '[!] Assegnatario non trovato') return res.status(400).json({ error: '[!] Errore: assegnatario non valido.' });
         if (error.message === '[!] Assegnatario non valido') return res.status(400).json({ error: '[!] Errore: assegnatario non valido.' });
       }
 

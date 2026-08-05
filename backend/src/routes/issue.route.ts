@@ -10,7 +10,7 @@ issueRouter.use(requireAuth, blockIfMustChangePassword);
 issueRouter.post('/', denyViewers, IssueController.create);
 issueRouter.get('/', IssueController.list);
 issueRouter.get('/:id', IssueController.getById);
-issueRouter.patch('/:id/assignee', requireRole('admin'), IssueController.assing);
+issueRouter.patch('/:id/assignee', requireRole('admin'), IssueController.assign);
 issueRouter.patch('/:id/status', denyViewers, IssueController.updateStatus);
 
 issueRouter.post('/:id/comments', denyViewers, CommentController.addComment);

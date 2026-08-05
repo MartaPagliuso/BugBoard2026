@@ -1,6 +1,8 @@
 import * as issueRepository from "../repository/issues.repository.js";
 import * as userRepository from "../repository/users.repository.js";
 
+import { type IssueFilters } from "../repository/issues.repository.js";
+
 export type CreateIssueInput = {
   title: string;
   description: string;
@@ -43,8 +45,8 @@ export async function getIssueById(id: string) {
  * Mostra l'elenco di tutte le issue
  * @returns 
  */
-export async function listIssues() {
-  return issueRepository.findAllIssue();
+export async function listIssues(filters: IssueFilters = {}) {
+  return issueRepository.findIssues(filters);
 }
 
 /**
