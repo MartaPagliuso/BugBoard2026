@@ -104,3 +104,24 @@ export async function updateIssueStatus(
     updatedAt: new Date(),
   });
 }
+
+/**
+ * Metodo che aggiorna la data di scadenza di una specifica attività nel database
+ * @param issueId 
+ * @param dueDate 
+ * @returns 
+ */
+export async function setDueDate(issueId: string, dueDate: Date | null) {
+  const issue = await issueRepository.findIssueById(issueId);
+  if (!issue)
+    throw new Error('[!] Issue non trovata');
+
+  if (dueDate !== null && dueDate.getTime() <= Date.now())
+    throw new Error('[!] Scadenza già trascorsa');
+
+  return issueRepository.updateIssue(issueId, {
+    dueDate, 
+    updatedAt: new Date(),
+  });
+}
+

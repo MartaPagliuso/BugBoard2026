@@ -30,6 +30,10 @@ const issueFiltersSchema = z.object({
   authorId: z.string().uuid().optional(),
 });
 
+const dueDateSchema = z.object({
+  dueDate: z.string().datetime().nullable(),
+});
+
 export class IssueController {
 
   /**
@@ -123,6 +127,12 @@ export class IssueController {
     }
   }
 
+  /**
+   * Metodo che aggiorna lo stato di una issue
+   * @param req 
+   * @param res 
+   * @returns 
+   */
   static async updateStatus(req: Request, res: Response) {
     const params = idParamSchema.safeParse(req.params);
     const body = statusSchema.safeParse(req.body);
@@ -147,6 +157,39 @@ export class IssueController {
 
       console.error(error);
       return res.status(500).json({ error: 'Errore durante l\'aggiornamento dello stato.' });
+    }
+  }
+
+  /**
+   * Metodo che setta la data di scadenza di una certa issue
+   * @param req 
+   * @param res 
+   */
+  static async setDueDate(req: Request, res: Response) {
+    const params = idParamSchema.safeParse(req.params);
+    const body = dueDateSchema.safeParse(req.body);
+
+    if (!params.success || !body.success)
+      return res.status(400).json({ error: '[!] Errore: dati non validi' });
+
+    try {
+      const issue = await issueService.setDueDate(
+        params.data.id,
+        body.data.dueDate === null ? null : new Date(body.data.dueDate),
+      );
+
+      return res.status(200).json(issue);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === '[!] Issue non trovata')
+          return res.status(404).json({ error: '[!] Errore: issue non trovata' });
+
+        if (error.message === '[!] Scadenza già trascorsa')
+          return res.status(400).json({ error: '[!] Errore: scadenza già trascorsa' });
+      }
+
+      console.error(error);
+      return res.status(500).json({ error: '[!] Errore durante l\'impostazione della scadenza' });
     }
   }
 }

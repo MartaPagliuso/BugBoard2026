@@ -15,3 +15,5 @@ issueRouter.patch('/:id/status', denyViewers, IssueController.updateStatus);
 
 issueRouter.post('/:id/comments', denyViewers, CommentController.addComment);
 issueRouter.get('/:id/comments', CommentController.listByIssue);
+
+issueRouter.patch('/:id/due-date', requireRole('admin'), IssueController.setDueDate);
