@@ -3,6 +3,8 @@ import * as userRepository from "../repository/users.repository.js";
 
 import { type IssueFilters } from "../repository/issues.repository.js";
 
+import * as notificationService from './notification.service.js';
+
 export type CreateIssueInput = {
   title: string;
   description: string;
@@ -94,15 +96,23 @@ export async function updateIssueStatus(
   const isAdmin = userRole === 'admin';
 
   if (!isAssignee && !isAdmin)
-    throw new Error('[!] Vietato')
+    throw new Error('[!] Vietato');
 
   const resolvedAt = newStatus === 'done' && !issue.resolvedAt ? new Date() : issue.resolvedAt;
 
-  return issueRepository.updateIssue(issueId, {
+  const updated = await issueRepository.updateIssue(issueId, {
     status: newStatus,
     resolvedAt,
     updatedAt: new Date(),
   });
+
+  if (newStatus === 'done' && issue.status !== 'done') {
+    try {
+      await notificationService.notifyIssueResolved(issue, userId);
+    } catch (error) {
+      console.error('Notifica fallita: ', error);
+    }
+  }
 }
 
 /**
