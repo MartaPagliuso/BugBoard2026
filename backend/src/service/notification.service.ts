@@ -1,5 +1,7 @@
 import * as notificationRepository from '../repository/notifications.repository.js';
 import { type SelectIssue } from '../db/schema/issues.js';
+import * as userRepository from '../repository/users.repository.js';
+import * as mailService from './mail.service.js';
 
 /**
  * Servizio che notifica quando la issue è stata risolta 
@@ -10,11 +12,21 @@ import { type SelectIssue } from '../db/schema/issues.js';
 export async function notifyIssueResolved(issue: SelectIssue, resolvedById: string) {
   if(issue.authorId === resolvedById) return;
 
-  return notificationRepository.insertNotification({
+  const notification = await notificationRepository.insertNotification({
     recipientId: issue.authorId,
     issueId: issue.id,
     message: `La issue "${issue.title}" che hai segnalato è stata risolta`,
   });
+
+  try {
+    const author = await userRepository.findUserById(issue.authorId);
+    if (author)
+      await mailService.sendIssueResolvedEmail(author.email, issue.title);
+  } catch (error) {
+    console.error('[!] Invio email fallito: ', error);
+  }
+
+  return notification;
 }
 
 /**
