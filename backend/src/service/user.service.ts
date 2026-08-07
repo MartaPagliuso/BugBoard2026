@@ -74,6 +74,8 @@ export async function getProfile(userId: string) {
 
   return {
     id: user.id,
+    nome: user.nome,
+    cognome: user.cognome,
     email: user.email,
     role: user.role,
     mustChangePassword: user.mustChangePassword,

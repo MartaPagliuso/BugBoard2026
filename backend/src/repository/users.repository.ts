@@ -9,6 +9,8 @@ import { users, type InsertUser } from "../db/schema/users.js";
 export async function insertUser(user: InsertUser) {
   const [created] = await db.insert(users).values(user).returning({
     id: users.id,
+    nome: users.nome,
+    cognome: users.cognome,
     email: users.email,
     role: users.role,
     createdAt: users.createdAt,
@@ -85,6 +87,8 @@ export async function findUserByRefreshToken(hash: string) {
 export async function findAllUser() {
   return db.select({
     id: users.id,
+    nome: users.nome,
+    cognome: users.cognome,
     email: users.email,
     role: users.role,
     createdAt: users.createdAt,
