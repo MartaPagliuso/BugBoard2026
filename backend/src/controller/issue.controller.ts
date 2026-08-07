@@ -192,4 +192,54 @@ export class IssueController {
       return res.status(500).json({ error: '[!] Errore durante l\'impostazione della scadenza' });
     }
   }
+
+  /**
+   * Metodo che inserisce un'immagine di una issue
+   * @param req 
+   * @param res 
+   */
+  static async uploadImage(req: Request, res: Response) {
+    const params = idParamSchema.safeParse(req.params);
+    if (!params.success)
+      return res.status(400).json({ error: '[!] Errore: id non valido' });
+
+    try {
+      const issue = await issueService.setIssueImage(
+        params.data.id, req.file!.buffer, req.user!.sub, req.user!.role, 
+      );
+
+      return res.status(200).json(issue);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === '[!] Issue non trovata') res.status(404).json({ error: '[!] Errore: issue non trovata.' });
+        if (error.message === '[!] Vietato') res.status(403).json({ error: 'Errore: solo l\'autore può allegare un\'immagine' });
+        if (error.message === '[!] Immagine non valida') res.status(400).json({ error: '[!] Errore: file non valido' });
+      }
+
+      console.error(error);
+      return res.status(500).json({ error: '[!] Errore durante il caricamento dell\'immagine' });
+    }
+  }
+
+  /**
+   * Metodo che permette di prendere l'immagine di una issue
+   * @param req 
+   * @param res 
+   */
+  static async getImage(req: Request, res: Response) {
+    const params = idParamSchema.safeParse(req.params);
+    if (!params.success)
+      return res.status(400).json({ error: '[!] Errore: id non valido' });
+
+    try {
+      const filepath = await issueService.getIssueImagePath(params.data.id);
+      return res.sendFile(filepath);
+    } catch (error) {
+      if (error instanceof Error && (error.message === '[!] Issue non trovata' || error.message === '[!] Immagine non trovata' ))
+        return res.status(404).json({ error: '[!] Errore: immagine non trovata' });
+
+      console.error(error);
+      return res.status(500).json({ error: '[!] Errore durante il recupero dell\'immagine' });
+    }
+  }
 }

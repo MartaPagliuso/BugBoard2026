@@ -1,9 +1,15 @@
 import * as issueRepository from "../repository/issues.repository.js";
 import * as userRepository from "../repository/users.repository.js";
-
 import { type IssueFilters } from "../repository/issues.repository.js";
-
 import * as notificationService from './notification.service.js';
+
+import sharp from 'sharp';
+import crypto from 'node:crypto';
+import path from 'node:path';
+import fs from 'node:fs/promises';
+import { UserRole } from "../db/schema/users.js";
+
+const UPLOAD_DIR = path.resolve('uploads', 'issues');
 
 export type CreateIssueInput = {
   title: string;
@@ -135,3 +141,51 @@ export async function setDueDate(issueId: string, dueDate: Date | null) {
   });
 }
 
+/**
+ * Metodo che setta l'immagine per una issue
+ * Viene salvato nel db solo il nome del file, non il percorso completo
+ * @param issueId 
+ * @param buffer 
+ * @param userId 
+ * @param userRole 
+ * @returns 
+ */
+export async function setIssueImage(issueId: string, buffer: Buffer, userId: string, userRole: UserRole) {
+  const issue = await issueRepository.findIssueById(issueId);
+  if (!issue)
+    throw new Error('[!] Issue non trovata');
+
+  if (issue.authorId !== userId && userRole !== 'admin')
+    throw new Error('[!] Vietato')
+
+  await fs.mkdir(UPLOAD_DIR, { recursive: true });
+  const filename = `${crypto.randomUUID()}.webp`;
+
+  try {
+    await sharp(buffer)
+      .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toFile(path.join(UPLOAD_DIR, filename));
+  } catch {
+    throw new Error('[!] Immagine non valida')
+  }
+
+  // rimuove la precedente, se c'era
+  if (issue.imageUrl)
+    await fs.unlink(path.join(UPLOAD_DIR, path.basename(issue.imageUrl))).catch(() => {});
+
+  return issueRepository.updateIssue(issueId, { imageUrl: filename, updatedAt: new Date() });
+}
+
+/**
+ * Metodo che prende il percorso di una immagina di una issue
+ * @param issueId 
+ */
+export async function getIssueImagePath(issueId: string) {
+  const issue = await issueRepository.findIssueById(issueId);
+
+  if (!issue) throw new Error('[!] Issue non trovata');
+  if (!issue.imageUrl) throw new Error('[!] Immagine non trovata');
+
+  return path.join(UPLOAD_DIR, path.basename(issue.imageUrl));
+}

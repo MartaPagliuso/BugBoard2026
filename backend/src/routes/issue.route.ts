@@ -2,6 +2,7 @@ import { Router } from "express";
 import { IssueController } from "../controller/issue.controller.js";
 import { CommentController } from "../controller/comment.controller.js";
 import { requireAuth, blockIfMustChangePassword, requireRole, denyViewers } from "../middleware/auth.middleware.js";
+import { uploadImage } from "../middleware/upload.middleware.js";
 
 export const issueRouter = Router();
 
@@ -17,3 +18,6 @@ issueRouter.post('/:id/comments', denyViewers, CommentController.addComment);
 issueRouter.get('/:id/comments', CommentController.listByIssue);
 
 issueRouter.patch('/:id/due-date', requireRole('admin'), IssueController.setDueDate);
+
+issueRouter.post('/:id/image', denyViewers, uploadImage, IssueController.uploadImage);
+issueRouter.get('/:id/image', IssueController.getImage);
