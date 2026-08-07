@@ -16,7 +16,7 @@ export class UserController {
    * @param req 
    * @param res 
    */
-  static async createUserController(req: Request, res: Response) {
+  static async create(req: Request, res: Response) {
     const parsed = createUserSchema.safeParse(req.body);
 
     if (!parsed.success)
@@ -27,10 +27,39 @@ export class UserController {
       return res.status(201).json(user);
     } catch (error) {
       if (error instanceof Error && error.message === '[!] Nome non valido.')
-        return res.status(400).json({ error: 'Nome e cognome devono contenere lettere valide.' });
+        return res.status(400).json({ error: '[!] Errore: nome e cognome devono contenere lettere valide.' });
 
       console.error(error);
-      res.status(500).json({ error: 'Errore durante la creazione di un nuovo utente.' });
+      res.status(500).json({ error: '[!] Errore durante la creazione di un nuovo utente.' });
+    }
+  }
+
+  /**
+   * Metodo che restituisce l'elenco di tutti gli utenti nel sistema
+   * @param req 
+   * @param res 
+   * @returns 
+   */
+  static async list (req: Request, res: Response) {
+    try {
+      const users = await userService.listUsers();
+      return res.status(200).json(users);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: '[!] Errore durante il recupero degli utenti' });
+    }
+  }
+
+  static async me(req: Request, res: Response) {
+    try {
+      const profile = await userService.getProfile(req.user!.sub);
+      return res.status(200).json(profile);
+    } catch (error) {
+      if (error instanceof Error && error.message === '[!] Utente non trovato')
+        return res.status(404).json({ error: '[!] Errore: utente non trovato' });
+
+      console.error(error);
+      return res.status(500).json({ error: '[!] Errore durante il recupero del profilo' });
     }
   }
 }

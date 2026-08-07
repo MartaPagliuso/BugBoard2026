@@ -21,3 +21,6 @@ issueRouter.patch('/:id/due-date', requireRole('admin'), IssueController.setDueD
 
 issueRouter.post('/:id/image', denyViewers, uploadImage, IssueController.uploadImage);
 issueRouter.get('/:id/image', IssueController.getImage);
+
+issueRouter.patch('/:id', denyViewers, IssueController.update);
+issueRouter.delete('/:id', requireRole('admin'), IssueController.delete);

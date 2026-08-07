@@ -66,3 +66,11 @@ export async function updateIssue(id: string, data: Partial<InsertIssue>) { // i
   const [updated] = await db.update(issues).set(data).where(eq(issues.id, id)).returning();
   return updated;
 }
+
+/**
+ * Metodo che permette l'eliminazione di una issue
+ * @param id 
+ */
+export async function deleteIssue(id: string) {
+  await db.delete(issues).where(eq(issues.id, id));
+}

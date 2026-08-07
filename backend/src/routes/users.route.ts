@@ -4,5 +4,6 @@ import { blockIfMustChangePassword, requireAuth, requireRole } from "../middlewa
 
 export const userRouter = Router();
 
-// rotta per la creazione di un nuovo utente
-userRouter.post('/', requireAuth, blockIfMustChangePassword, requireRole('admin'),  UserController.createUserController);
+userRouter.post('/', requireAuth, blockIfMustChangePassword, requireRole('admin'),  UserController.create);
+userRouter.get('/', requireAuth, blockIfMustChangePassword, requireRole('admin'), UserController.list);
+userRouter.get('/me', requireAuth, UserController.me);

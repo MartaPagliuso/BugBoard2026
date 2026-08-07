@@ -34,6 +34,15 @@ const dueDateSchema = z.object({
   dueDate: z.string().datetime().nullable(),
 });
 
+const updateIssueSchema = z.object({
+  title: z.string().min(3).max(200).optional(),
+  description: z.string().min(1).optional(),
+  type: z.enum(['question', 'bug', 'documentation', 'feature']).optional(),
+  priority: z.enum(['low', 'medium', 'high', 'critical']).nullable().optional(),
+}).refine((data) => Object.keys(data).length > 0, {
+  message: '[!] Errore: almeno un campo deve essere specificato',
+});
+
 export class IssueController {
 
   /**
@@ -240,6 +249,50 @@ export class IssueController {
 
       console.error(error);
       return res.status(500).json({ error: '[!] Errore durante il recupero dell\'immagine' });
+    }
+  }
+
+  /**
+   * Metodo che permette la modifica di una issue
+   * @param req 
+   * @param res 
+   * @returns 
+   */
+  static async update(req: Request, res: Response) {
+    const params = idParamSchema.safeParse(req.params);
+    const body = updateIssueSchema.safeParse(req.body);
+
+    if (!params.success || !body.success)
+      return res.status(400).json({ error: '[!] Errore: dati non validi' });
+
+    try {
+      const issue = await issueService.updateIssue(params.data.id, body.data, req.user!.sub, req.user!.role);
+      return res.status(200).json(issue);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === '[!] Issue non trovata') return res.status(404).json({ error: '[!] Errore: issue non trovata' });
+        if (error.message === '[!] Vietato') return res.status(403).json({ error: '[!] Errore: solo l\'autore può modificare la issue' });
+      }
+
+      console.error(error);
+      return res.status(500).json({ error: '[!] Errore durante la modifica della issue' });
+    }
+  }
+
+  static async delete(req: Request, res: Response) {
+    const params = idParamSchema.safeParse(req.params);
+    if (!params.success)
+      return res.status(400).json({ error: '[!] Errore: id non valido' });
+
+    try {
+      await issueService.deleteIssue(params.data.id);
+      return res.status(204).send();
+    } catch (error) {
+      if (error instanceof Error && error.message === '[!] Issue non trovata')
+        return res.status(404).json({ error: '[!] Errore: issue non trovata' });
+
+      console.error(error);
+      return res.status(500).json({ error: '[!] Errore durante l\'eliminazione della issue' });
     }
   }
 }

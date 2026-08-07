@@ -6,6 +6,8 @@ export const issueStatus = pgEnum('issue_status', ['todo', 'in_progress', 'done'
 export const issuePriority = pgEnum('issue_priority', ['low', 'medium', 'high', 'critical']);
 
 export type IssueStatus = (typeof issueStatus.enumValues)[number];
+export type IssueType = (typeof issueType.enumValues)[number];
+export type IssuePriority = (typeof issuePriority.enumValues)[number];
 
 export const issues = table('issues', {
   id: uuid('id').defaultRandom().primaryKey(),

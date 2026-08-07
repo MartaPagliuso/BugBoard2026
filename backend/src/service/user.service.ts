@@ -55,3 +55,30 @@ function isUniqueViolation(error: unknown): boolean {
   return e.code === '23505' || e.cause?.code === '23505';
 }
 
+/**
+ * Metodo che restituisce tutti gli utenti presenti nel sistema
+ * @returns 
+ */
+export async function listUsers() {
+  return userRepository.findAllUser();
+}
+
+/**
+ * Metodo che restituisce i dati di un determinato utente
+ * @param userId 
+ */
+export async function getProfile(userId: string) {
+  const user = await userRepository.findUserById(userId);
+  if (!user)
+    throw new Error('[!] Utente non trovato');
+
+  return {
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    mustChangePassword: user.mustChangePassword,
+    createdAt: user.createdAt,
+  };
+}
+
+

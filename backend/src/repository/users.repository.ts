@@ -78,3 +78,15 @@ export async function findUserByRefreshToken(hash: string) {
   
   return user;
 }
+
+/**
+ * Metodo che restituisce l'elenco di tutti gli utenti
+ */
+export async function findAllUser() {
+  return db.select({
+    id: users.id,
+    email: users.email,
+    role: users.role,
+    createdAt: users.createdAt,
+  }).from(users).orderBy(users.email);
+}
