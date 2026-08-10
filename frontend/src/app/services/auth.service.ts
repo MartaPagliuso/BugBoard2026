@@ -47,4 +47,15 @@ export class AuthService {
     );
   }
 
+  /**
+   * Servizio che permette di modificare la password
+   * @param currentPassword 
+   * @param newPassword 
+   */
+  changePassword(currentPassword: string, newPassword: string) {
+    return this.http
+      .post<{ message: string }>('/api/auth/change-password', { currentPassword, newPassword })
+      .pipe(tap(() => this.currentUser.set(null)));
+  } 
+
 }

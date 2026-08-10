@@ -98,8 +98,14 @@ export class AuthController {
 
       return res.status(200).json({ message: 'Password aggiornata. Effettua nuovamente il login.' });
     } catch (error) {
-      if (error instanceof Error && error.message === '[!] Credenziali non valide.')
-        return res.status(401).json({ error: '[!] Password attuale non corretta.' });
+      if (error instanceof Error) {
+        if (error.message === '[!] Credenziali non valide.')
+          return res.status(401).json({ error: '[!] Errore: password attuale non corretta.' });
+
+        if (error.message === '[!] Passoword identica')
+          return res.status(400).json({ error: '[!] Errore: la nuova password deve essere diversa da quella attuale.' });
+      }
+        
 
       console.error(error);
       return res.status(500).json({ error: '[!] Errore durante il cambio password.' });

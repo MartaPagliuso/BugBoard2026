@@ -81,5 +81,8 @@ export async function changePassword(userId: string, currentPassword: string, ne
   if (!passwordVerificata)
     throw new Error('[!] Credenziali non valide.');
 
+  if (currentPassword === newPassword)
+    throw new Error('[!] Password identica');
+
   await userRepository.updatePassword(userId, await hashPassword(newPassword));
 }

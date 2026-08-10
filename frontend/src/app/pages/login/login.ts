@@ -28,7 +28,7 @@ export class Login {
     this.auth.login(this.email(), this.password()).subscribe({
       next: (res) => {
         this.loading.set(false);
-        this.router.navigate([res.user.mustChangePassword ? '/change-passoword' : '/issues']);
+        this.router.navigate([res.user.mustChangePassword ? '/change-password' : '/issues']);
       },
       error: (err) => {
         this.loading.set(false);

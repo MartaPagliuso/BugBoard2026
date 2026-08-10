@@ -1,6 +1,7 @@
 <div class="min-h-screen flex items-center justify-center bg-blue-50 px-40">
   <div class="w-full max-w-sm">
     
+    <!-- SEZIONE ICONA PRINCIPALE -->
     <div class="text-center mb-7">
       <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-plum-600 mb-4">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -18,13 +19,16 @@
       <p class="text-sm text-ink-mid">Sistema interno di segnalazioni</p>
     </div>
 
+    <!-- SEZIONE FORM -->
     <form (ngSubmit)="submit()" class="bg-white border border-line rounded-xl p-6">
+      <!-- SEZIONE EMAIL -->
       <label for="email" class="block text-sm text-ink mb-1.5"> Email Aziendale </label>
       <input id="email" type="email" name="email" autocomplete="username"
         [ngModel]="email()" (ngModelChange)="email.set($event)"
         placeholder="nome.cognome@bugboard.it"
         class="w-full border border-line rounded-lg px-3 py-2 mb-4 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"/>
 
+        <!-- SEZIONE PASSWORD -->
       <label for="password" class="block text-sm text-ink mb-1.5"> Password </label>
       <div class="relative mb-5">
         <input id="password" name="password" autocomplete="current-password"
@@ -33,6 +37,7 @@
           (ngModelChange)="password.set($event)"
           class="w-full border border-line rounded-lg px-3 py-2 pr-10 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400">
 
+        <!-- BOTTONE PER MOSTRARE O NASCONDERE LA PASSWORD -->
         <button type="button" (click)="showPassword.set(!showPassword())"
           [attr.aria-label]="showPassword() ? 'Nascondi Password' : 'Mostra Password' "
           class="absolute right-3 top-1/2 -translate-y-1/2 text-ink-mid hover:text-blue-700 cursor-pointer transition-colors">
@@ -58,6 +63,7 @@
         <p role="alert" class="text-sm text-red-800 bg-red-50 rounded-lg px-3 py-2 mb-4">{{ error() }}</p>
       }
 
+      <!-- BOTTONE PER INVIARE IL FORM -->
       <button type="submit" [disabled]="loading() || !email() || !password()"
         class="w-full bg-plum-600 text-white rounded-lg py-2.5 text-sm font-medium hover:bg-plum-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
         {{loading() ? 'Accesso in corso...' : 'Accedi' }}
