@@ -27,6 +27,8 @@ export async function login(email: string, password: string) {
     refreshToken,
     user: {
       id: user.id,
+      nome: user.nome, 
+      cognome: user.cognome,
       email: user.email,
       role: user.role,
       mustChangePassword: user.mustChangePassword,

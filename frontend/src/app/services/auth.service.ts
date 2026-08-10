@@ -12,6 +12,17 @@ export class AuthService {
   readonly isAdmin = computed(() => this.currentUser()?.role === 'admin');
   readonly isViewer = computed(() => this.currentUser()?.role === 'viewer');
 
+  readonly initials = computed(() => {
+    const user = this.currentUser();
+    if (!user) return '';
+    return (user.nome[0] ?? '').concat(user.cognome[0] ?? '').toUpperCase();
+  });
+
+  readonly fullName = computed(() => {
+    const user = this.currentUser();
+    return user ? `${user.nome} ${user.cognome}` : '';
+  })
+
   /**
    * Servizio che permette di effettuare il login
    * @param email 
@@ -38,7 +49,7 @@ export class AuthService {
    * Se qualcosa va storto, le azzera
    */
   loadCurrentUser() {
-    return this.http.get<User>('api/users/me').pipe(
+    return this.http.get<User>('/api/users/me').pipe(
       tap((user) => this.currentUser.set(user)),
       catchError(() => {
         this.currentUser.set(null);

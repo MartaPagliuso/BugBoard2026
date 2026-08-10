@@ -1,0 +1,97 @@
+<div class="min-h-screen bg-blue-50">
+
+  <header class="bg-white border-b border-line">
+    <div class="max-w-6xl mx-auto px-5 py-2.5 flex items-center gap-4">
+
+      <!-- SEZIONE TITOLO CON ICONA -->
+      <a routerLink="/issues" class="flex items-center gap-2 shrink-0">
+        <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-plum-600">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+            fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m8 2 1.88 1.88" /><path d="M14.12 3.88 16 2" />
+            <path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1" />
+            <path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6" />
+            <path d="M12 20v-9" /><path d="M6.53 9C4.6 8.8 3 7.1 3 5" />
+            <path d="M6 13H2" /><path d="M3 21c0-2.1 1.7-3.9 3.8-4" />
+            <path d="M20.97 5c0 2.1-1.6 3.8-3.5 4" />
+            <path d="M22 13h-4" /><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4" />
+          </svg>
+        </span>
+        <span class="text-[15px] font-medium text-ink">
+          BugBoard
+        </span>
+      </a>
+
+      <nav class="flex items-center gap-4 flex-1 ml-2">
+        <a routerLink="/issues" routerLinkActive="text-blue-700 font-medium border-blue-700" class="text-sm text-ink-mid border-b-2 border-transparent pb-0.5 hover:text-blue-700">
+          Issue
+        </a>
+
+        @if(isAdmin()) {
+          <a routerLink="/dashboard" routerLinkActive="text-blue-700 font-medium border-blue-700" class="text-sm text-ink-mid border-b-2 border-transparent pb-0.5 hover:text-blue-700">
+            Dashboard
+          </a>
+          <a routerLink="/users" routerLinkActive="text-blue-700 font-medium border-blue-700" class="text-sm text-ink-mid border-b-2 border-transparent pb-0.5 hover:text-blue-700">
+            Utenti
+          </a>
+        }
+
+        @if(isViewer()) {
+          <span class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-[11px] px-2 py-0.5 rounded">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" />
+            </svg>
+            Sola lettura
+          </span>
+        }
+      </nav>
+
+      @if(!isViewer()) {
+        <button type="button" class="relative text-ink-mid hover:text-blue-700 cursor-pointer" aria-label="Notifiche">
+          <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.268 21a2 2 0 0 0 3.464 0" />
+            <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />
+          </svg>
+        </button>
+      }
+
+      <div class="relative">
+        <button type="button" (click)="menuOpen.set(!menuOpen())"
+          [class]="menuOpen() ? 'bg-blue-700 text-white' : 'bg-blue-100 text-blue-700'"
+          class="w-[29px] h-[29px] rounded-full text-[11px] font-medium cursor-pointer transition-colors"
+          aria-label="Menù utente">
+
+          {{ initials() }}
+        </button>
+
+        @if(menuOpen()) {
+          <div class="absolute right-0 top-full mt-1.5 w-56 bg-white border border-line rounded-lg shadow-sm z-20">
+            <div class="px-3.5 py-2.5 border-b border-line">
+              <p class="text-[13px] font-medium text-ink"> {{fullName() }} </p>
+              <p class="text-xs text-ink-mid"> {{ currentUser()?.email }} </p>
+              <span class="inline-block mt-1.5 bg-plum-50 text-plum-600 text-[10px] px-1.5 py-0.5 rounded">
+                {{ roleLabel[currentUser()!.role] }}
+              </span>
+            </div>
+
+            <button type="button" (click)="logout()"
+              class="w-full flex items-center gap-2 px-3.5 py-2 text-[13px] text-ink-mid hover:bg-blue-50 cursor-pointer">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m16 17 5-5-5-5" /><path d="M21 12H9" />
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              </svg>
+              Esci
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-5 py-6">
+    <router-outlet />
+  </main>
+</div>

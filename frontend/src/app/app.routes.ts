@@ -13,7 +13,22 @@ export const routes: Routes = [
   },
   {
     path: '',
-    pathMatch: 'full',
-    redirectTo: 'login'
+    canActivate: [authGuard],
+    loadComponent: () => import('./layout/layout').then(m => m.Layout),
+    children: [
+      {
+        path: 'issues',
+        loadComponent: () => import('./pages/issues/issues').then(m => m.Issues)
+      },
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'issues'
+      },
+    ],
+  },
+  {
+    path: '**',
+    redirectTo: 'issues'
   },
 ];
