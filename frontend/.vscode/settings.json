@@ -1,0 +1,6 @@
+{
+  "tailwindCSS.experimental.configFile": "src/styles.css",
+  "tailwindCSS.includeLanguages": {
+    "html": "html"
+  }
+}
