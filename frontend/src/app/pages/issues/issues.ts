@@ -1,7 +1,120 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, computed, effect } from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { RouterLink } from "@angular/router";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { debounceTime, switchMap, startWith } from "rxjs";
+import { IssueService } from "../../services/issue.service";
+import { AuthService } from "../../services/auth.service";
+import { Issue, IssueStatus, IssueType, IssuePriority, IssuePerson } from "../../models/issue.model";
+import { DatePipe } from "@angular/common";
 
 @Component({
   selector: 'app-issues',
-  template: `<h1 class="text-xl text-ink">Lista issue</h1>`,
+  imports: [FormsModule, RouterLink, DatePipe],
+  templateUrl: './issues.html',
 })
-export class Issues {}
+export class Issues {
+  private readonly issueService = inject(IssueService);
+  private readonly auth = inject(AuthService);
+
+  readonly isViewer = this.auth.isViewer;
+
+  search = signal('');
+  statusFilter = signal<IssueStatus | null>(null);
+  typeFilter = signal<IssueType | null>(null);
+  priorityFilter = signal<IssuePriority | null>(null);
+  loading = signal(true);
+
+  private readonly filters = computed(() => ({
+    q: this.search() || undefined,
+    status: this.statusFilter() ?? undefined,
+    type: this.typeFilter() ?? undefined,
+    priority: this.priorityFilter() ?? undefined,
+  }));
+
+  readonly issues = toSignal(
+    toObservable(this.filters).pipe(
+      debounceTime(300),
+      switchMap((f) => {
+        this.loading.set(true);
+        return this.issueService.list(f);
+      }),
+      startWith([] as Issue[]),
+    ),
+    { initialValue: [] as Issue[] },
+  );
+
+  constructor() {
+    effect(() => {
+      this.issues();
+      this.loading.set(false);
+    });
+  }
+
+  readonly openCount = computed(() => this.issues().filter((i) => i.status !== 'done' && i.status !== 'closed').length);
+  
+  readonly statusLabel: Record<IssueStatus, string> = {
+    todo: 'Todo',
+    in_progress: 'In corso',
+    done: 'Risolto',
+    closed: 'Chiusa',
+  };
+  readonly statusClass: Record<IssueStatus, string> = {
+    todo: 'bg-gray-100 text-gray-700',
+    in_progress: 'bg-blue-100 text-blue-700',
+    done: 'bg-green-50 text-green-800',
+    closed: 'bg-gray-200 text-gray-700',
+  };
+
+  readonly priorityLabel: Record<IssuePriority, string> = {
+    low: 'Bassa',
+    medium: 'Media',
+    high: 'Alta',
+    critical: 'Critica',
+  };
+  readonly priorityClass: Record<IssuePriority, string> = {
+    low: 'bg-gray-100 text-gray-700',
+    medium: 'bg-amber-50 text-amber-800',
+    high: 'bg-red-50 text-red-800',
+    critical: 'bg-red-100 text-red-900',
+  };
+
+  readonly typeLabel: Record<IssueType, string> = {
+    question: 'Domanda',
+    bug: 'Bug',
+    documentation: 'Documentazione',
+    feature: 'Funzionalità',
+  };
+  
+  /**
+   * Metodo che prende solo le iniziali di un utente
+   * @param p 
+   * @returns 
+   */
+  initials(p: IssuePerson): string {
+    if (!p?.nome || !p?.cognome)
+      return '';
+
+    return (p.nome[0] + p.cognome[0].toUpperCase());
+  }
+
+  /**
+   * Metodo che restituisce il nome intero
+   * @param p 
+   */
+  fullName(p:IssuePerson): string {
+    return p?.nome ? `${p.nome} ${p.cognome}` : '';
+  }
+
+  /**
+   * Metodo che mostra se una issue è scaduta o meno
+   * @param issue 
+   */
+  isOverdue(issue:Issue): boolean {
+    return !!issue.dueDate && !issue.resolvedAt && new Date(issue.dueDate) < new Date();
+  }
+
+  setStatus(s: IssueStatus | null) {
+    this.statusFilter.set(s);
+  }
+}
