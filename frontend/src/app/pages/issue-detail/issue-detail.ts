@@ -6,10 +6,11 @@ import { IssueService } from "../../services/issue.service";
 import { AuthService } from "../../services/auth.service";
 import { Issue, IssueStatus, IssueType, IssuePriority, IssuePerson } from "../../models/issue.model";
 import { Comment } from "../../models/comment.model";
+import { AssigneePicker } from "../../components/assignee-picker/assignee-picker";
 
 @Component({
   selector: 'app-issue-detail',
-  imports: [FormsModule, RouterLink, DatePipe],
+  imports: [FormsModule, RouterLink, DatePipe, AssigneePicker],
   templateUrl: './issue-detail.html',
 })
 export class IssueDetail {

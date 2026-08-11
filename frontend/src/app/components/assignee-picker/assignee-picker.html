@@ -1,0 +1,61 @@
+<div class="bg-white border border-line rounded-lg p-3 relative">
+  <p class="text-[11px] text-ink-mid uppercase tracking-wide mb-1.5">Assegnata a</p>
+
+  @if (!open()) {
+    <button type="button" (click)="toggle()"
+      class="w-full border border-line rounded-md px-2.5 py-1.5 flex items-center gap-2 cursor-pointer hover:border-blue-400 transition-colors">
+      @if (issue().assignee.id) {
+        <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-[9px] font-medium inline-flex items-center justify-center shrink-0">
+          {{ assignedInitials() }}
+        </span>
+        <span class="text-[13px] text-ink flex-1 text-left truncate"> {{ assignedName() }}</span>
+      } @else {
+        <span class="w-5 h-5 rounded-full border border-dashed border-gray-300 shrink-0"></span>
+        <span class="text-[13px] text-ink-mid flex-1 text-left">Non assegnata</span>
+      }
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="2.5" class="text-gray-400 shrink-0">
+        <path d="m6 9 6 6 6-6" />
+      </svg>
+    </button>
+  } @else {
+    <div class="border-[1.5px] border-blue-400 rounded-md">
+      <div class="flex items-center gap-2 px-2.5 py-1.5 border-b border-gray-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" class="text-blue-400 shrink-0">
+          <path d="m21 21-4.34-4.34" /><circle cx="11" cy="11" r="8" />
+        </svg>
+        <input type="text" [ngModel]="query()" (ngModelChange)="query.set($event)" placeholder="Cerca..." autofocus 
+          class="flex-1 text-[13px] outline-none bg-transparent min-w-0">
+      </div>
+
+      <div class="max-h-52 overflow-y-auto">
+        @if (loading()) {
+          <p class="text-[12px] text-ink-mid px-2.5 py-2">Caricamento...</p>
+        } @else {
+          @for( u of filtered(); track u.id) {
+            <button type="button" (click)="select(u.id)" [class.bg-blue-50]="u.id === issue().assigneeId"
+              class="w-full px-2.5 py-1.5 flex items-center gap-2 hover:bg-blue-50 cursor-pointer text-left">
+              <span class="w-5 h-5 rounded-full bg-gray-100 text-gray-600 text-[9px] font-medium inline-flex items-center justify-center shrink-0">
+                {{ initials(u) }}
+              </span>
+
+              <span class="text-[12.5px] text-ink flex-1 truncate">
+                {{ fullName(u) }}
+              </span>
+
+              @if (u.id === issue().assigneeId) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="3" class="text-blue-700 shrink-0">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              }
+            </button>
+          } @empty {
+            <p class="text-[12px] text-ink-mid px-2.5 py-2">Nessun risultato</p>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>

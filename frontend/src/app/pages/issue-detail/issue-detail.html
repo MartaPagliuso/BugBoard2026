@@ -114,10 +114,7 @@
 
       @if (isAdmin()) {
         <!-- SEZIONE CAMBIO UTENTE ASSEGNATO -->
-        <div class="bg-white border border-line rounded-lg p-3">
-          <p class="text-[11px] text-ink-mid uppercase tracking-wide mb-1.5">Assegnata a</p>
-          <p class="text-[13px] text-ink">{{ personName(i.assignee) || 'Non assegnata' }}</p>
-        </div>
+        <app-assignee-picker [issue]="i" (assigned)="onAssigned($event)" />
 
         <!-- SEZIONE DATA SCADENZA -->
         <div class="bg-white border border-line rounded-lg p-3">

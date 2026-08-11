@@ -83,10 +83,12 @@ export async function assignIssue(issueId: string, assigneeId: string) {
   if (assignee.role === 'viewer')
     throw new Error('[!] Assegnatario non valido');
 
-  return issueRepository.updateIssue(issueId, {
+  await issueRepository.updateIssue(issueId, {
     assigneeId,
     updatedAt: new Date(),
   });
+
+  return issueRepository.findIssueById(issueId);
 }
 
 /**
@@ -115,7 +117,7 @@ export async function updateIssueStatus(
 
   const resolvedAt = newStatus === 'done' && !issue.resolvedAt ? new Date() : issue.resolvedAt;
 
-  const updated = await issueRepository.updateIssue(issueId, {
+  await issueRepository.updateIssue(issueId, {
     status: newStatus,
     resolvedAt,
     updatedAt: new Date(),
@@ -128,6 +130,8 @@ export async function updateIssueStatus(
       console.error('Notifica fallita: ', error);
     }
   }
+
+  return issueRepository.findIssueById(issueId);
 }
 
 /**
@@ -144,10 +148,12 @@ export async function setDueDate(issueId: string, dueDate: Date | null) {
   if (dueDate !== null && dueDate.getTime() <= Date.now())
     throw new Error('[!] Scadenza già trascorsa');
 
-  return issueRepository.updateIssue(issueId, {
+  await issueRepository.updateIssue(issueId, {
     dueDate, 
     updatedAt: new Date(),
   });
+
+  return issueRepository.findIssueById(issueId);
 }
 
 /**
@@ -183,7 +189,9 @@ export async function setIssueImage(issueId: string, buffer: Buffer, userId: str
   if (issue.imageUrl)
     await fs.unlink(path.join(UPLOAD_DIR, path.basename(issue.imageUrl))).catch(() => {});
 
-  return issueRepository.updateIssue(issueId, { imageUrl: filename, updatedAt: new Date() });
+  await issueRepository.updateIssue(issueId, { imageUrl: filename, updatedAt: new Date() });
+
+  return issueRepository.findIssueById(issueId);
 }
 
 /**
@@ -223,10 +231,12 @@ export async function updateIssue(
   if (!isAuthor && !isAdmin)
     throw new Error('[!] Vietato')
 
-  return issueRepository.updateIssue(issueId, {
+  await issueRepository.updateIssue(issueId, {
     ...input,
     updatedAt: new Date(),
   });
+
+  return issueRepository.findIssueById(issueId);
 }
 
 /**
