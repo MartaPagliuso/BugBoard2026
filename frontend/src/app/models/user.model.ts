@@ -9,3 +9,10 @@ export interface User {
   mustChangePassword: boolean;
   createdAt: string;
 }
+
+export interface AssignableUser {
+  id: string;
+  nome: string;
+  cognome: string;
+  email: string;
+}

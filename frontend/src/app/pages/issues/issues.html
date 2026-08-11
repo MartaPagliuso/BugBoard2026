@@ -145,7 +145,7 @@
             <p class="text-xs text-ink-mid">
               {{ fullName(issue.author) }} ·
               {{ issue.createdAt | date: 'd MMM y' }}
-              @if (issue.commentCount > 0) {
+              @if (issue.commentCount) {
                 · {{ issue.commentCount }} {{ issue.commentCount === 1 ? 'commento' : 'commenti' }}
               }
               @if (isOverdue(issue)) {

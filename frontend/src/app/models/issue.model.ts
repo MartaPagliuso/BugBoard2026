@@ -20,9 +20,11 @@ export interface Issue {
   resolvedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  authorId: string;
+  assigneeId: string;
   author: IssuePerson;
   assignee: IssuePerson
-  commentCount: number;
+  commentCount?: number;
 }
 
 export interface IssueFilters {

@@ -99,6 +99,8 @@ export async function findIssues(filters: IssueFilters = {}) {
     resolvedAt: issues.resolvedAt,
     createdAt: issues.createdAt,
     updatedAt: issues.updatedAt,
+    authorId: issues.authorId,
+    assigneeId: issues.assigneeId,
     author: {
       id: author.id,
       nome: author.nome,

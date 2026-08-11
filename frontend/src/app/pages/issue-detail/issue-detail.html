@@ -1,0 +1,145 @@
+<!-- SEZIONE PER TORNARE INDIETRO -->
+<a routerLink="/issues" class="inline-flex items-center gap-2 text-[13px] text-ink-mid hover:text-blue-700 mb-3">
+  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m12 19-7-7 7-7" /><path d="M19 12H5" />
+  </svg>
+  Torna alle senalazioni
+</a>
+
+@if (loading()) {
+  <p class="text-sm text-ink-mid py-10 text-center">Caricamento...</p>
+} @else if (!issue()) {
+  <p class="text-sm text-ink-mid py-10 text-center">Segnalazione non trovata </p>
+} @else {
+  @let i = issue()!;
+
+  @if (error()) {
+    <p role="alert" class="text-sm text-red-800 bg-red-50 rounded-lg px-3 py-2 mb-3"> {{ error() }} </p>
+  }
+
+  <!-- SEZIONE DEL TITOLO -->
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr_200px] gap-3.5 items-start">
+    <div>
+      <div class="bg-white border border-line rounded-lg p-4 mb-3">
+        <div class="flex gap-1.5 mb-2 flex-wrap">
+          <span class="bg-blue-50 text-blue-700 text-[11px] px-2 py-0.5 rounded"> {{ typeLabel[i.type] }}</span>
+          <span [class]="statusClass[i.status]" class="text-[11px] px-2 py-0.5 rounded"> {{ statusLabel[i.status] }}</span>
+          
+          @if (i.priority) {
+            <span [class]="priorityClass[i.priority]" class="text-[11px] px-2 py-0.5 rounded"> {{ priorityLabel[i.priority] }} </span>
+          }
+        </div>
+
+        <h1 class="text-lg font-medium text-ink mb-1.5 leading-snug"> {{ i.title }}</h1>
+        <p class="text-xs text-ink-mid mb-3.5"> Segnalata da <span class="text-ink">{{ personName(i.author) }}</span> · {{ i.createdAt | date: 'd MMMM y' }}</p>
+        <p class="text-sm text-ink leading-relaxed whitespace-pre-wrap mb-3.5">{{ i.description }}</p>
+
+        @if (i.imageUrl) {
+          <img [src]="'/api/issues/' + i.id + '/image'" alt="Allegato della segnalazione" class="max-h-72 mx-auto block rounded-lg border border-line">
+        } @else if (canEdit()) {
+          <label class="block border border-dashed border-line rounded-lg py-6 text-center cursor-pointer hover:border-blue-400 transition-colors">
+            <input type="file" accept="image/*" (change)="onFileSelected($event)" class="hidden">
+            <span class="inline-flex items-center gap-2 text-[13px] text-ink-mid">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2" /><circle cx="9" cy="9" r="2" />
+                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+              </svg>
+              Allega un'immagine
+            </span>
+          </label>
+        }
+      </div>
+
+      <!-- SEZIONE DEI COMMENTI -->
+      <div class="bg-white border border-line rounded-lg p-4">
+        <p class="text-sm font-medium text-ink mb-3">Commenti ({{ comments().length }})</p>
+
+        @for (c of comments(); track c.id) {
+          <div class="flex gap-2.5 mb-3.5">
+            <span class="w-7 h-7 rounded-full bg-blue-100 text-blue-700 text-[10px] font-medium inline-flex items-center justify-center shrink-0">
+              {{ personInitials(c.author) }}
+            </span>
+
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-ink-mid mb-0.5">
+                <span class="text-ink font-medium">{{ personName(c.author) }}</span>
+              </p>
+              <p class="text-[13.5px] text-ink leading-relaxed whitespace-pre-wrap"> {{ c.body }}</p>
+            </div>
+          </div>
+        } @empty {
+          <p class="text-[13px] text-ink-mid mb-3.5"> Nessun commento </p>
+        }
+
+        <!-- SEZIONE INSERIMENTO DI UN NUOVO COMMENTO -->
+        @if (!isViewer()) {
+          <div class="border-t border-gray-100 pt-3 flex gap-2.5">
+            <span class="w-7 h-7 rounded-full bg-blue-700 text-white text-[10px] font-medium inline-flex items-center justify-center shrink-0">
+              {{ initials() }}
+            </span>
+
+            <div class="flex-1">
+              <textarea rows="2" name="comment"
+                [ngModel]="newComment()" (ngModelChange)="newComment.set($event)"
+                placeholder="Scrivi un commento..."
+                class="w-full border border-line rounded-lg px-3 py-2 mb-2 text-[13.5px] outline-none focus:border-blue-400 resize-y"></textarea>
+
+              <div class="flex justify-end">
+                <button type="button" (click)="sendComment()" [disabled]="!newComment().trim() || sendingComment()"
+                  class="bg-plum-600 text-white text-[12.5px] px-3.5 py-1.5 rounded-lg hover:bg-plum-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                  {{ sendingComment() ? 'Invio...' : 'Invia' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-2.5">
+      <!-- SEZIONE CAMBIO STATO -->
+      @if (canChangeStatus()) {
+        <div class="bg-white border border-line rounded-lg p-3">
+          <p class="text-[11px] text-ink-mid uppercase tracking-wide mb-1.5"> Stato </p>
+          <select [ngModel]="i.status" (ngModelChange)="changeStatus($event)"
+            class="w-full border border-line rounded-md px-2.5 py-1.5 text-[13px] outline-none focus:border-blue-400 cursor-pointer">
+            @for(s of statuses; track s) {
+              <option [value]="s">{{ statusLabel[s] }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      @if (isAdmin()) {
+        <!-- SEZIONE CAMBIO UTENTE ASSEGNATO -->
+        <div class="bg-white border border-line rounded-lg p-3">
+          <p class="text-[11px] text-ink-mid uppercase tracking-wide mb-1.5">Assegnata a</p>
+          <p class="text-[13px] text-ink">{{ personName(i.assignee) || 'Non assegnata' }}</p>
+        </div>
+
+        <!-- SEZIONE DATA SCADENZA -->
+        <div class="bg-white border border-line rounded-lg p-3">
+          <p class="text-[11px] text-ink-mid uppercase tracking-wide mb-1.5">Scadenza</p>
+          <input type="date" [ngModel]="i.dueDate?.slice(0,10)" (ngModelChange)="setDueDate($event)"
+            class="w-full border border-line rounded-md px-2.5 py-1.5 text-[13px] outline-none focus:border-blue-400">
+        </div>
+
+        <!-- SEZIONE BOTTONI -->
+        <div class="bg-white border border-line rounded-lg p-3">
+          <button type="button" (click)="deleteIssue()"
+            class="inline-flex items-center gap-2 text-[13px] text-red-800 hover:text-red-900 cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+            Elimina
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
+
