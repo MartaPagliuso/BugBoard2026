@@ -32,7 +32,37 @@ export async function insertIssue(issue: InsertIssue) {
  * @returns 
  */
 export async function findIssueById(id: string) {
-  const [issue] = await db.select().from(issues).where(eq(issues.id, id)).limit(1);
+  const [issue] = await db.select({
+    id: issues.id, 
+    title: issues.title, 
+    description: issues.description,
+    type: issues.type,
+    status: issues.status,
+    priority: issues.priority,
+    imageUrl: issues.imageUrl,
+    dueDate: issues.dueDate,
+    resolvedAt: issues.resolvedAt,
+    createdAt: issues.createdAt,
+    updatedAt: issues.updatedAt,
+    authorId: issues.authorId,
+    assigneeId: issues.assigneeId,
+    author: {
+      id: author.id,
+      nome: author.nome,
+      cognome: author.cognome,
+    },
+    assignee: {
+      id: assignee.id,
+      nome: assignee.nome,
+      cognome: assignee.cognome
+    },
+  })
+    .from(issues)
+    .innerJoin(author, eq(issues.authorId, author.id))
+    .leftJoin(assignee, eq(issues.assigneeId, assignee.id))
+    .where(eq(issues.id, id))
+    .limit(1);
+
   return issue;
 }
 

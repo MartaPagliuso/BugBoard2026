@@ -50,6 +50,12 @@ export class UserController {
     }
   }
 
+  /**
+   * Metodo che restituisce le informazioni dell'utente autenticato
+   * @param req 
+   * @param res 
+   * @returns 
+   */
   static async me(req: Request, res: Response) {
     try {
       const profile = await userService.getProfile(req.user!.sub);
@@ -60,6 +66,20 @@ export class UserController {
 
       console.error(error);
       return res.status(500).json({ error: '[!] Errore durante il recupero del profilo' });
+    }
+  }
+
+  /**
+   * Metodo che mostra l'elenco degli utenti a cui è possibile assegnare una issue
+   * @param req 
+   * @param res 
+   */
+  static async listAssignable(req: Request, res: Response) {
+    try {
+      return res.status(200).json(await userService.listAssignableUsers());
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: '[!] Errore durante il recupero degli utenti' });
     }
   }
 }

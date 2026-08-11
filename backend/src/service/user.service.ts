@@ -83,4 +83,11 @@ export async function getProfile(userId: string) {
   };
 }
 
+/**
+ * Servizio che mostra l'elenco degli utenti a cui è possibile assegnare una issue
+ */
+export async function listAssignableUsers() {
+  return userRepository.findAssignableUsers();
+}
+
 

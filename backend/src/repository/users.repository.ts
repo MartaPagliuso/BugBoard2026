@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, ne } from 'drizzle-orm';
 import { db } from "../db/db.js";
 import { users, type InsertUser } from "../db/schema/users.js";
 
@@ -93,4 +93,19 @@ export async function findAllUser() {
     role: users.role,
     createdAt: users.createdAt,
   }).from(users).orderBy(users.email);
+}
+
+/**
+ * Metodo che trova gli utenti a cui è possibile assegnare una issue
+ */
+export async function findAssignableUsers() {
+  return db.select({
+    id: users.id,
+    nome: users.nome, 
+    cognome: users.cognome,
+    email: users.email,
+  })
+    .from(users)
+    .where(ne(users.role, 'viewer'))
+    .orderBy(users.cognome);
 }

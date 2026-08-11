@@ -7,3 +7,4 @@ export const userRouter = Router();
 userRouter.post('/', requireAuth, blockIfMustChangePassword, requireRole('admin'),  UserController.create);
 userRouter.get('/', requireAuth, blockIfMustChangePassword, requireRole('admin'), UserController.list);
 userRouter.get('/me', requireAuth, UserController.me);
+userRouter.get('/assignable', requireAuth, blockIfMustChangePassword, requireRole('admin'), UserController.listAssignable);
