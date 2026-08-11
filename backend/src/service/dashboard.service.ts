@@ -18,6 +18,7 @@ export async function getDashboardStats() {
     avgPerUser,
     overdue,
     unassigned,
+    totalUsers,
   ] = await Promise.all([
     dashboardRepository.countOpenIssues(),
     dashboardRepository.countByStatus(),
@@ -28,6 +29,7 @@ export async function getDashboardStats() {
     dashboardRepository.avgResolutionSecondsPerUser(),
     dashboardRepository.countOverdue(),
     dashboardRepository.countUnassigned(),
+    dashboardRepository.countAssignableUsers()
   ]);
 
   return {
@@ -37,13 +39,15 @@ export async function getDashboardStats() {
       overdue,
       avgResolutionHours: toHours(avgSeconds),
     },
+    byStatus,
     byType,
     byPriority,
     assignedPerUser,
+    totalAssignableUsers: totalUsers,
     resolutionPerUser: avgPerUser.map((row) => ({
       userId: row.userId,
       email: row.email,
-      resolved: row.resolvedAt,
+      resolved: row.resolved,
       avgResolutionHours: toHours(row.avgSeconds ? Number(row.avgSeconds) : null),
     })),
   }

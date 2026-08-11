@@ -1,0 +1,126 @@
+<!-- SEZIONE TITOLO -->
+<h1 class="text-xl font-medium text-ink mb-0.5">Dashboard</h1>
+<p class="text-[13px] text-ink-mid mb-4">Panoramica delle segnalazioni</p>
+
+@if(loading()) {
+  <p class="text-sm text-ink-mid text-center py-10">Caricamento...</p>
+} @else if (error()) {
+  <p class="text-sm text-red-800 bg-red-50 rounded-lg px-3 py-2">{{ error() }}</p>
+} @else if (stats(); as s) {
+
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mb-3.5">
+    <!-- SEZIONE DELLE CARD -->
+    <div class="bg-white border border-line rounded-lg p-3.5">
+      <p class="text-[11px] text-ink-mid uppercase tracking-wide mb-1.5">Aperte</p>
+      <p class="text-2xl font-medium text-ink leading-none">{{ s.summary.openIssues }}</p>
+    </div>
+
+    <div class="bg-white border border-line rounded-lg p-3.5">
+      <p class="text-[11px] text-ink-mid uppercase tracking-wide mb-1.5">Non Assegante</p>
+      <p class="text-2xl font-medium text-ink leading-none">{{ s.summary.unassigned }}</p>
+    </div>
+
+    <div class="bg-white border border-line rounded-lg p-3.5">
+      <p class="text-[11px] text-ink-mid uppercase tracking-wide mb-1.5">Scadute</p>
+      <p class="text-2xl font-medium leading-none" [class]="s.summary.overdue > 0 ? 'text-red-800' : 'text-ink'">
+        {{ s.summary.overdue }}
+      </p>
+    </div>
+    
+    <div class="bg-white border border-line rounded-lg p-3.5">
+      <p class="text-[11px] text-ink-mid uppercase tracking-wide mb-1.5">Tempo Medio</p>
+      <p class="text-2xl font-medium text-ink leading-none">
+        @if (s.summary.avgResolutionHours !== null) {
+          {{ s.summary.avgResolutionHours }} <span class="text-sm text-ink-mid font-normal"> h</span>
+        } @else {
+          <span class="text-sm text-ink-mid font-normal">-</span>
+        }
+      </p>
+    </div>
+  </div>
+
+  <!-- SEZIONE STATISTICHE -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-2.5 mb-3.5">
+    <!-- SEZIONE PER STATO -->
+    <div class="bg-white border border-line rounded-lg p-3.5">
+      <p class="text-[13px] font-medium text-ink mb-3">Per stato</p>
+      @for(item of s.byStatus; track item.status) {
+        <div class="mb-2 last:mb-0">
+          <div class="flex justify-between mb-1">
+            <span class="text-xs text-ink-mid">{{ statusLabel[item.status] }}</span>
+            <span class="text-xs text-ink">{{ item.total }}</span>
+          </div>
+
+          <div class="h-1.5 bg-gray-100 rounded-full">
+            <div class="h-full rounded-full transition-all" [style.width.%]="percent(item.total)" [style.background-color]="statusColor[item.status]"></div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- SEZIONE PER TIPO -->
+    <div class="bg-white border border-line rounded-lg p-3.5">
+      <p class="text-[13px] font-medium text-ink mb-3">Per tipo</p>
+      @for (item of s.byType; track item.type) {
+        <div class="mb-2 last:mb-0">
+          <div class="flex justify-between mb-1">
+            <span class="text-xs text-ink-mid">{{ typeLabel[item.type] }}</span>
+            <span class="text-xs text-ink">{{ item.total }}</span>
+          </div>
+
+          <div class="h-1.5 bg-gray-100 rounded-full">
+            <div class="h-full rounded-full transition-all" [style.width.%]="percent(item.total)" [style.background-color]="typeColor[item.type]"></div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
+    <!-- SEZIONE CARICO PER UTENTE -->
+    <div class="bg-white border border-line rounded-lg p-3.5">
+      <p class="text-[13px] font-medium text-ink mb-0.5">Carico per utente</p>
+      <p class="text-[11.5px] text-ink-mid mb-2.5">Issue aperte assegnate</p>
+      @for(u of s.assignedPerUser; track u.userId) {
+        <div class="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
+          <span class="w-[22px] h-[22px] rounded-full bg-gray-100 text-gray-600 text-[9px] font-medium  inline-flex items-center justify-center shrink-0">
+            {{ initials(u.nome, u.cognome) }}
+          </span>
+          <span class="text-[12.5px] flex-1 truncate" [class]="u.assigned > 0 ? 'text-ink' : 'text-ink-mid'">
+            {{ u.nome }} {{ u.cognome }}
+          </span>
+          <span class="text-[13px]" [class]="u.assigned > 0 ? 'text-ink font-medium' : 'text-gray-400' ">
+            {{ u.assigned }}
+          </span>
+        </div>
+      }
+
+      @if (s.totalAssignableUsers > s.assignedPerUser.length) {
+        <p class="text-[11.5px] text-gray-400 pt-2">
+          e altri {{ s.totalAssignableUsers - s.assignedPerUser.length }} utenti
+        </p>
+      }
+    </div>
+
+    <!-- SEZIONE TEMPO MEDIO -->
+    <div class="bg-white border border-line rounded-lg p-3.5">
+      <p class="text-[13px] font-medium text-ink mb-0.5">Tempo medio di risoluzione</p>
+      <p class="text-[11.5px] text-ink-mid mb-2.5">Solo issue risolte</p>
+      @for(u of s.resolutionPerUser; track u.userId) {
+        <div class="flex items-center gap-2 py-1.5 border-b border-gray-50 last:border-0">
+          <span class="w-[22px] h-[22px] rounded-full bg-gray-100 text-gray-600 text-[9px] font-medium inline-flex items-center justify-center shrink-0">
+            {{ initials(u.nome, u.cognome) }}
+          </span>
+          
+          <div class="flex-1 min-w-0">
+            <span class="text-[12.5px] text-ink">{{ u.nome }} {{ u.cognome }}</span>
+            <span class="text-[11px] text-gray-400"> · {{ u.resolved }} {{ u.resolved === 1 ? 'risolta' : 'risolte' }} </span>
+          </div>
+          <span class="text-[13px] text-ink font-medium shrink-0"> {{ u.avgResolutionHours  }} h</span>
+        </div>
+      } @empty {
+        <p class="text-[12.5px] text-ink-mid">Nessuna issue risolta.</p>
+      }
+    </div>
+  </div>
+}

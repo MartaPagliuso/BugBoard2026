@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -27,6 +28,11 @@ export const routes: Routes = [
       {
         path: 'issues/:id',
         loadComponent: () => import('./pages/issue-detail/issue-detail').then(m => m.IssueDetail)
+      },
+      {
+        path: 'dashboard',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.Dashboard),
       },
       {
         path: '',
