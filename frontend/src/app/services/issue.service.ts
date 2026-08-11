@@ -1,6 +1,6 @@
 import { Injectable, inject } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
-import { Issue, IssueFilters } from "../models/issue.model";
+import { Issue, IssueFilters, IssuePriority, IssueType } from "../models/issue.model";
 
 @Injectable({ providedIn: 'root' })
 export class IssueService {
@@ -27,5 +27,13 @@ export class IssueService {
    */
   getById(id: string) {
     return this.http.get<Issue>(`/api/issues/${id}`);
+  }
+
+  /**
+   * Servizio che permette di creare una nuova issue
+   * @param data 
+   */
+  create(data: { title: string; description: string; type: IssueType; priority?: IssuePriority }) {
+    return this.http.post<Issue>('/api/issues', data);
   }
 }

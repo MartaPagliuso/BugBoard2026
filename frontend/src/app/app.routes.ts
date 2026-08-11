@@ -21,6 +21,10 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/issues/issues').then(m => m.Issues)
       },
       {
+        path: 'issues/new',
+        loadComponent: () => import('./pages/issue-create/issue-create').then(m => m.IssueCreate)
+      },
+      {
         path: 'issues/:id',
         loadComponent: () => import('./pages/issue-detail/issue-detail').then(m => m.IssueDetail)
       },
