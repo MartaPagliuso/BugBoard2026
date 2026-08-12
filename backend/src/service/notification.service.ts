@@ -36,7 +36,14 @@ export async function notifyIssueResolved(issue: SelectIssue, resolvedById: stri
  * @returns 
  */
 export async function listNotifications(userId: string, onlyUnread: boolean) {
-  return notificationRepository.findByRecipient(userId, onlyUnread);
+  const limit = 20;
+
+  const [items, total] = await Promise.all([
+    notificationRepository.findByRecipient(userId, onlyUnread, limit),
+    notificationRepository.countByRecipient(userId)
+  ]);
+
+  return { items, total, limit: limit};
 }
 
 /**

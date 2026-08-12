@@ -18,14 +18,23 @@ export async function insertNotification(notification: InsertNotification) {
  * @param onlyUnread 
  * @returns 
  */
-export async function findByRecipient(recipientId: string, onlyUnread = false) {
+export async function findByRecipient(recipientId: string, onlyUnread = false, limit = 20) {
   const conditions = [eq(notifications.recipientId, recipientId)];
   if (onlyUnread)
     conditions.push(eq(notifications.read, false));
 
   return db.select().from(notifications)
     .where(and(...conditions))
-    .orderBy(desc(notifications.createdAt));
+    .orderBy(desc(notifications.createdAt))
+    .limit(limit);
+}
+
+export async function countByRecipient(recipientId: string) {
+  const [row] = await db.select({ value: count() })
+    .from(notifications)
+    .where(eq(notifications.recipientId, recipientId));
+
+  return row?.value ?? 0;
 }
 
 /**

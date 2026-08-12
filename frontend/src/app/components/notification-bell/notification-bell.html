@@ -1,0 +1,67 @@
+<!-- SEZIONE ICONA CON NUMERO DI NOFICHE -->
+<div class="relative">
+  <button type="button" (click)="toggle()" aria-label="Notifche"
+    [class]="unreadCount() > 0 ? 'text-blue-700' : 'text-ink-mid'">
+    <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24"
+      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10.268 21a2 2 0 0 0 3.464 0" />
+      <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />
+    </svg>
+    @if (unreadCount() > 0) {
+      <span class="absolute -top-1 -right-1.5 bg-plum-600 text-white text-[10px] min-w-[14px] h-[14px] rounded-full inline-flex items-center justify-center px-1">
+        {{ unreadCount() }}
+      </span>
+    }
+  </button>
+
+  <!-- SEZIONE LISTA NOTIFICHE -->
+  @if (open()) {
+    <!-- SEZIONE TITOLO -->
+    <div class="absolute right-0 top-full mt-1.5 w-[290px] bg-white border border-line rounded-lg shadow-sm z-20 overflow-hidden">
+      <div class="px-3.5 py-2.5 border-b border-line flex items-center justify-between">
+        <span class="text-[13px] font-medium text-ink">Notifhce</span>
+
+        @if (unreadCount() > 0) {
+          <button type="button" (click)="markAllAsRead()"
+            class="text-[11.5px] text-blue-700 hover:text-blue-900 cursor-pointer">
+            Segna tutte lette
+          </button>
+        }
+      </div>
+
+      <div class="max-h-80 overflow-y-auto">
+        @if (loading()) {
+          <p class="text-[12px] text-ink-mid text-center py-6"> Caricamento... </p>
+        } @else {
+          @for (n of notifications(); track n.id) {
+            <button type="button" (click)="onNotificationClick(n)" [class]="n.read ? 'bg-white' : 'bg-blue-50' "
+              class="w-full text-left px-3.5 py-2.5 border-b border-gray-50 last:border-0 flex gap-2.5 hover:bg-blue-100 cursor-pointer transition-colors">
+              <span class="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5" [class]="n.read ? '' : 'bg-plum-600'"></span>
+              <span class="flex-1 min-w-0">
+                <span class="block text-[12.5px] leading-snug mb-0.5" [class]="n.read ? 'text-ink-mid' : 'text-ink'">
+                  {{ n.message }}
+                </span>
+                <span class="block text-[11px] text-gray-400">{{ timeAgo(n.createdAt) }}</span>
+              </span>
+            </button>
+          } @empty {
+            <div class="text-center py-7 px-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="1.6" class="text-gray-300 mx-auto mb-1.5">
+                <path d="M10.268 21a2 2 0 0 0 3.464 0" />
+                <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />
+              </svg>
+              <p class="text-[12.5px] text-ink-mid">Nessuna notifica</p>
+            </div>
+          }
+
+          @if (total() > notifications().length) {
+            <p class="text-[11px] text-gray-400 text-center py-2 border-t border-gray-50">
+              Mostrate le {{ notifications().length }} più recenti di {{ total() }}
+            </p>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>
