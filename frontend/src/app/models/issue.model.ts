@@ -23,7 +23,7 @@ export interface Issue {
   authorId: string;
   assigneeId: string;
   author: IssuePerson;
-  assignee: IssuePerson
+  assignee: IssuePerson | null;
   commentCount?: number;
 }
 
@@ -32,4 +32,11 @@ export interface IssueFilters {
   status?: IssueStatus;
   type?: IssueType;
   priority?: IssuePriority;
+}
+
+export interface PaginatedIssues {
+  items: Issue[];
+  total: number;
+  page: number;
+  limit: number;
 }

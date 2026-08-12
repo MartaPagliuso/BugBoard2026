@@ -4,7 +4,7 @@
     <div>
       <h1 class="text-xl font-medium text-ink mb-0.5">Segnalazioni</h1>
       <p class="text-[13px] text-ink-mid">
-        {{ issues().length }} issue totali · {{ openCount() }} aperte
+        {{ total() }} issue totali
       </p> 
     </div>
 
@@ -164,16 +164,33 @@
             {{ statusLabel[issue.status] }}
           </span>
 
-          @if (issue.assignee.id) {
+          @if (issue.assignee?.id) {
             <span [title]="'Assegnata a ' + fullName(issue.assignee)"
               class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-[10px] font-medium inline-flex items-center justify-center shrink-0">
               {{ initials(issue.assignee) }}
             </span>
           } @else {
-            <span title="Non assegnata" class="w-6 h-6 border border-dashed border-gray-300 shrink-0"></span>
+            <span title="Non assegnata" class="w-6 h-6 rounded-full border border-dashed border-gray-300 shrink-0"></span>
           }
         </a>
       }
     }
   </div>
+
+  <!-- SEZIONE DELLA PAGINAZIONE -->
+  @if (totalPages() > 1) {
+    <div class="flex items-center justify-center gap-3 mt-3">
+      <button type="button" (click)="page.set(page() - 1)" [disabled]="page() === 1"
+        class="text-[13px] px-3 py-1.5 rounded-lg border border-line bg-white text-ink-mid hover:border-blue-400 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors">
+        Precedente
+      </button>
+
+      <span class="text-[13px] text-ink-mid">Pagina {{ page() }} di {{ totalPages() }}</span>
+
+      <button type="button" (click)="page.set(page() + 1)" [disabled]="page() === totalPages()"
+        class="text-[13px] px-3 py-1.5 rounded-lg border border-line bg-white text-ink-mid hover:border-blue-400 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors">
+        Successiva
+      </button>
+    </div>
+  }
 </div>

@@ -4,7 +4,7 @@
   @if (!open()) {
     <button type="button" (click)="toggle()"
       class="w-full border border-line rounded-md px-2.5 py-1.5 flex items-center gap-2 cursor-pointer hover:border-blue-400 transition-colors">
-      @if (issue().assignee.id) {
+      @if (issue().assignee?.id) {
         <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-[9px] font-medium inline-flex items-center justify-center shrink-0">
           {{ assignedInitials() }}
         </span>

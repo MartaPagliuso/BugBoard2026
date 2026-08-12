@@ -1,7 +1,7 @@
-import { Component, inject, signal, computed, effect } from "@angular/core";
+import { Component, inject, signal, computed, effect, untracked } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { RouterLink } from "@angular/router";
-import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounceTime, switchMap, startWith } from "rxjs";
 import { IssueService } from "../../services/issue.service";
 import { AuthService } from "../../services/auth.service";
@@ -25,6 +25,12 @@ export class Issues {
   priorityFilter = signal<IssuePriority | null>(null);
   loading = signal(true);
 
+  readonly issues = signal<Issue[]>([]);
+
+  page = signal(1);
+  total = signal(0);
+  readonly limit = 10;
+
   private readonly filters = computed(() => ({
     q: this.search() || undefined,
     status: this.statusFilter() ?? undefined,
@@ -32,22 +38,30 @@ export class Issues {
     priority: this.priorityFilter() ?? undefined,
   }));
 
-  readonly issues = toSignal(
-    toObservable(this.filters).pipe(
-      debounceTime(300),
-      switchMap((f) => {
-        this.loading.set(true);
-        return this.issueService.list(f);
-      }),
-      startWith([] as Issue[]),
-    ),
-    { initialValue: [] as Issue[] },
-  );
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.limit)));
+
+  
 
   constructor() {
+    toObservable(computed(() => ({ filters: this.filters(), page: this.page() })))
+      .pipe(
+        debounceTime(300),
+        switchMap(({ filters, page }) => this.issueService.list(filters, page, this.limit)),
+        takeUntilDestroyed(),
+      )
+      .subscribe((res) => {
+        this.issues.set(res.items);
+        this.total.set(res.total);
+        this.loading.set(false);
+
+      })
+
     effect(() => {
-      this.issues();
-      this.loading.set(false);
+      this.search();
+      this.statusFilter();
+      this.typeFilter();
+      this.priorityFilter();
+      untracked(() => this.page.set(1));
     });
   }
 
@@ -91,18 +105,18 @@ export class Issues {
    * @param p 
    * @returns 
    */
-  initials(p: IssuePerson): string {
+  initials(p: IssuePerson | null): string {
     if (!p?.nome || !p?.cognome)
       return '';
 
-    return (p.nome[0] + p.cognome[0].toUpperCase());
+    return (p.nome[0] + p.cognome[0]).toUpperCase();
   }
 
   /**
    * Metodo che restituisce il nome intero
    * @param p 
    */
-  fullName(p:IssuePerson): string {
+  fullName(p:IssuePerson | null): string {
     return p?.nome ? `${p.nome} ${p.cognome}` : '';
   }
 

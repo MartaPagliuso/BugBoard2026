@@ -62,8 +62,8 @@ export async function getIssueById(id: string) {
  * Servizio che mostra l'elenco di tutte le issue
  * @returns 
  */
-export async function listIssues(filters: IssueFilters = {}) {
-  return issueRepository.findIssues(filters);
+export async function listIssues(filters: IssueFilters = {}, page = 1, limit = 20) {
+  return issueRepository.findIssues(filters, page, limit);
 }
 
 /**

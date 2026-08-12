@@ -1,6 +1,6 @@
 import { Injectable, inject } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
-import { Issue, IssueFilters, IssuePriority, IssueStatus, IssueType } from "../models/issue.model";
+import { Issue, IssueFilters, IssuePriority, IssueStatus, IssueType, PaginatedIssues } from "../models/issue.model";
 import { Comment } from "../models/comment.model";
 
 @Injectable({ providedIn: 'root' })
@@ -11,15 +11,15 @@ export class IssueService {
    * Servizio che elenca tutte le issue presenti
    * @param filters 
    */
-  list(filters: IssueFilters = {}) {
-    let params = new HttpParams();
+  list(filters: IssueFilters = {}, page = 1, limit = 20) {
+    let params = new HttpParams().set('page', page).set('limit', limit);
 
     if (filters.q) params = params.set('q', filters.q);
     if (filters.status) params = params.set('status', filters.status);
     if (filters.type) params = params.set('type', filters.type);
     if (filters.priority) params = params.set('priority', filters.priority);
 
-    return this.http.get<Issue[]>('/api/issues', { params });
+    return this.http.get<PaginatedIssues>('/api/issues', { params });
   }
 
   /**

@@ -70,7 +70,7 @@ export async function findIssueById(id: string) {
  * Metodo che restituisce tutte le issue salvate nel db
  * @returns 
  */
-export async function findIssues(filters: IssueFilters = {}) {
+export async function findIssues(filters: IssueFilters = {}, page = 1, limit = 20) {
   const conditions: SQL[] = [];
 
   if (filters.q) {
@@ -87,7 +87,11 @@ export async function findIssues(filters: IssueFilters = {}) {
   if (filters.assigneeId) conditions.push(eq(issues.assigneeId, filters.assigneeId));
   if (filters.authorId) conditions.push(eq(issues.authorId, filters.authorId));
 
-  return db.select({
+  const [countRow] = await db.select({ value: count() })
+    .from(issues)
+    .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+  const items = await db.select({
     id: issues.id,
     title: issues.title,
     description: issues.description,
@@ -119,7 +123,11 @@ export async function findIssues(filters: IssueFilters = {}) {
     .leftJoin(comments, eq(comments.issueId, issues.id))
     .where(conditions.length > 0 ? and(...conditions) : undefined)
     .groupBy(issues.id, author.id, assignee.id)
-    .orderBy(desc(issues.createdAt));
+    .orderBy(desc(issues.createdAt))
+    .limit(limit)
+    .offset((page - 1) * limit);
+
+  return { items, total: countRow?.value ?? 0, page, limit};
 }
 
 /**

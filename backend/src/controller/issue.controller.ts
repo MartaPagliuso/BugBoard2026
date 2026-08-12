@@ -28,6 +28,8 @@ const issueFiltersSchema = z.object({
   priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
   assigneeId: z.string().uuid().optional(),
   authorId: z.string().uuid().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
 });
 
 const dueDateSchema = z.object({
@@ -99,9 +101,11 @@ export class IssueController {
     if (!parsed.success)
       return res.status(400).json({ error: '[!] Errore: filtri non validi.', details: parsed.error.flatten() });
 
+    const { page, limit, ...filters } = parsed.data;
+
     try {
-      const issues = await issueService.listIssues(parsed.data);
-      return res.status(200).json(issues);
+      const result = await issueService.listIssues(filters, page, limit);
+      return res.status(200).json(result);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: '[!] Errore durante il recupero delle issues.' });

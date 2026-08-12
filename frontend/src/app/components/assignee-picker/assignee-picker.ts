@@ -33,7 +33,7 @@ export class AssigneePicker {
 
   readonly assignedInitials = computed(() => {
     const a = this.issue().assignee;
-    if (!a.nome || !a.cognome)
+    if (!a?.nome || !a?.cognome)
       return '';
 
     return (a.nome[0] + a.cognome[0].toUpperCase());
@@ -41,7 +41,7 @@ export class AssigneePicker {
 
   readonly assignedName = computed(() => {
     const a = this.issue().assignee;
-    return a.nome ? `${a.nome} ${a.cognome}` : '';
+    return a?.nome ? `${a?.nome} ${a?.cognome}` : '';
   });
 
   toggle() {
