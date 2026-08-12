@@ -35,6 +35,11 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.Dashboard),
       },
       {
+        path: 'users',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./pages/users/users').then(m => m.Users),
+      },
+      {
         path: '',
         pathMatch: 'full',
         redirectTo: 'issues'

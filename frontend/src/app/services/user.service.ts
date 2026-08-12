@@ -21,4 +21,12 @@ export class UserService {
   listAssignable() {
     return this.http.get<AssignableUser[]>('/api/users/assignable');
   }
+
+  /**
+   * Servizio che permette di creare un nuovo utente
+   * @param data 
+   */
+  create(data: { nome: string; cognome: string; password: string; role?: 'user' | 'viewer' }) {
+    return this.http.post<User>('/api/users', data);
+  }
 }
