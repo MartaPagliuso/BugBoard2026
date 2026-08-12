@@ -16,6 +16,8 @@ export class Users {
   loading = signal(true);
   panelOpen = signal(false);
   error = signal<string | null>(null);
+  search = signal('');
+  roleFilter = signal<UserRole | null>(null);
   created = signal<{ email: string; password: string } | null>(null);
 
   nome = signal('');
@@ -43,6 +45,28 @@ export class Users {
   });
 
   readonly canSubmit = computed(() => this.previewEmail() !== '' && this.password().length >= 8 && !this.saving());
+
+  readonly filterUsers = computed(() => {
+    const q = this.search().trim().toLowerCase();
+    const role = this.roleFilter();
+
+    return this.users().filter((u) => {
+      if (role && u.role !== role)
+        return false;
+
+      if (!q)
+        return true;
+
+      return `${u.nome} ${u.cognome} ${u.email}`.toLowerCase().includes(q);
+    });
+  });
+
+  readonly roleFilters: { value: UserRole | null; label: string }[] = [
+    { value: null, label: 'Tutti' },
+    { value: 'user', label: 'Utenti' },
+    { value: 'viewer', label: 'Sola Lettura' },
+    { value: 'admin', label: 'Amministratori' },
+  ];
 
   constructor() {
     this.loadUsers();

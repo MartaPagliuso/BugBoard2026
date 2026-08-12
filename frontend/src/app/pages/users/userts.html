@@ -2,7 +2,7 @@
 <div class="flex items-center justify-between mb-3.5">
   <div>
       <h1 class="text-xl font-medium text-ink mb-0.5">Utenti</h1>
-      <p class="text-[13px] text-ink-mid">{{ users().length }} account attivi</p>
+      <p class="text-[13px] text-ink-mid">{{ filterUsers().length }} di {{ users().length }} account</p>
   </div>
 
   <!-- SEZIONE BOTTONE PER APRIRE O CHIUDERE LA SEZIONE DEL FORM -->
@@ -124,12 +124,40 @@
   </form>
 }
 
+<!-- SEZIONE RICERCA -->
+<div class="bg-white border border-line rounded-lg px-3 py-2 flex items-center gap-2 mb-2.5">
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+    class="text-gray-400 shrink-0">
+    <path d="m21 21-4.34-4.34" /><circle cx="11" cy="11" r="8" />
+  </svg>
+  <input type="text" name="search" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Cerca per nome o email" class="flex-1 text-sm outline-none bg-transparent">
+  @if (search()) {
+    <button type="text" (click)="search.set('')" aria-label="Cancella ricerca" class="text-gray-400 hover:text-ink cursor-pointer shrink-0">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+      </svg>
+    </button>
+  }
+</div>
+
+<!-- SEZIONE FILTRI PER RUOLO -->
+<div class="flex gap-1.5 mb-3 flex-wrap">
+  @for (f of roleFilters; track f.label) {
+    <button type="button" (click)="roleFilter.set(f.value)" [class]="roleFilter() === f.value ? 'bg-blue-700 text-white border-blue-700' : 'bg-white text-ink-mid border-line'"
+      class="text-[12.5px] px-2.5 py-1 rounded-full border cursor-pointer transition-colors">
+      {{ f.label }}
+    </button>
+  }
+</div>
+
 <!-- SEZIONE LISTA DI UTENTI -->
-<div class="bg-white border border-line rounded-lg overflow-hidden">
+<div class="bg-white border border-line rounded-lg max-h-[500px] overflow-y-auto">
   @if(loading()) {
     <p class="text-sm text-ink-mid text-center py-10">Caricamento...</p>
   } @else {
-    @for( u of users(); track u.id) {
+    @for( u of filterUsers(); track u.id) {
       <div class="flex items-center gap-2.5 px-3.5 py-2.5 border-b border-gray-50 last:border-0">
         <span class="w-[26px] h-[26px] rounded-full bg-gray-100 text-gray-600 text-[10px] font-medium inline-flex items-center justify-center shrink-0">
           {{ initials(u) }}
@@ -141,6 +169,8 @@
         <span class="text-[11px] text-gray-400 shrink-0 hidden sm:block">{{ u.createdAt | date: 'd MMM y' }}</span>
         <span [class]="roleClass[u.role]" class="text-[10.5px] px-2 py-0.5 rounded shrink-0">{{ roleLabel[u.role] }}</span>
       </div>
+    } @empty {
+      <p class="text-sm text-ink-mid text-center py-10">Nessun utente trovato</p>
     }
   }
 </div>
