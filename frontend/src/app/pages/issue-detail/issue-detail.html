@@ -21,23 +21,85 @@
   <!-- SEZIONE DEL TITOLO -->
   <div class="grid grid-cols-1 lg:grid-cols-[1fr_200px] gap-3.5 items-start">
     <div>
-      <div class="bg-white border border-line rounded-lg p-4 mb-3">
-        <div class="flex gap-1.5 mb-2 flex-wrap">
-          <span class="bg-blue-50 text-blue-700 text-[11px] px-2 py-0.5 rounded"> {{ typeLabel[i.type] }}</span>
-          <span [class]="statusClass[i.status]" class="text-[11px] px-2 py-0.5 rounded"> {{ statusLabel[i.status] }}</span>
-          
-          @if (i.priority) {
-            <span [class]="priorityClass[i.priority]" class="text-[11px] px-2 py-0.5 rounded"> {{ priorityLabel[i.priority] }} </span>
+      <div class="bg-white border rounded-lg p-4 mb-3 relative" [class]="editing() ? 'border-[1.5px] border-blue-400' : 'border-line'">
+        @if (!editing()) {
+          @if(canEdit()) {
+            <button type="button" (click)="startEdit()"
+              class="absolute top-3.5 right-3.5 inline-flex items-center gap-1.5 border border-line rounded-md px-2.5 py-1 text-[12.5px] text-ink-mid hover:border-blue-400 hover:text-blue-700 cursor-pointer transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9" />
+                <path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z" />
+              </svg>
+              Modifica
+            </button>
           }
-        </div>
 
-        <h1 class="text-lg font-medium text-ink mb-1.5 leading-snug"> {{ i.title }}</h1>
-        <p class="text-xs text-ink-mid mb-3.5"> Segnalata da <span class="text-ink">{{ personName(i.author) }}</span> · {{ i.createdAt | date: 'd MMMM y' }}</p>
-        <p class="text-sm text-ink leading-relaxed whitespace-pre-wrap mb-3.5">{{ i.description }}</p>
+          <div class="flex gap-1.5 mb-2 flex-wrap pr-24">
+            <span class="bg-blue-50 text-blue-700 text-[11px] px-2 py-0.5 rounded"> {{ typeLabel[i.type] }}</span>
+            <span [class]="statusClass[i.status]" class="text-[11px] px-2 py-0.5 rounded"> {{ statusLabel[i.status] }}</span>
+            @if (i.priority) {
+              <span [class]="priorityClass[i.priority]" class="text-[11px] px-2 py-0.5 rounded">{{ priorityLabel[i.priority] }}</span>
+            }
+          </div>
+
+          <h1 class="text-lg font-medium text-ink mb-1.5 leading-snug">{{ i.title }}</h1>
+          <p class="text-xs text-ink-mid mb-3.5">
+            Segnalata da <span class="text-ink">{{ personName(i.author) }}</span> · {{ i.createdAt | date: 'd MMMM y' }}
+          </p>
+        } @else {
+          <!-- SEZIONE MODIFICA -->
+          <p class="text-[13px] font-medium text-ink mb-3">Modifica Segnalazione</p>
+
+          <label for="editTitle" class="block text-[12.5px] text-ink mb-1.5">Titolo</label>
+          <input id="editTitle" name="editTitle" type="text" [maxlength]="maxTitle" [ngModel]="editTitle()" (ngModelChange)="editTitle.set($event)"
+            class="w-full border border-line rounded-md px-2.5 py-2 text-[13.5px] outline-none focus:border-blue-400">
+          <p class="text-[11px] text-gray-400 text-right mt-1 mb-3">{{ editTitle().length }} / {{ maxTitle }}</p>
+
+          <label for="editDescription" class="block text-[12.5px] text-ink mb-1.5">Descrizione</label>
+          <textarea name="editDescription" id="editDescription" rows="4" [ngModel]="editDescription()" (ngModelChange)="editDescription.set($event)"
+            class="w-full border border-line rounded-md px-2.5 py-2 mb-3 text-[13.5px] leading-relaxed outline-none focus:border-blue-400 resize-y"></textarea>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+            <div>
+              <p class="text-[12.5px] text-ink mb-1.5">Tipo</p>
+              <div class="flex gap-1.5 flex-wrap">
+                @for (t of types; track t) {
+                  <button type="button" (click)="editType.set(t)" [class]="editType() === t ? 'border-blue-700 border-[1.5px] text-blue-700' : 'border-line border text-ink-mid'"
+                    class="text-[11.5px] px-2.5 py-1 rounded-full bg-white cursor-pointer transition-colors">
+                    {{ typeShort[t] }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <div>
+              <p class="text-[12.5px] text-ink mb-1.5">Priorità</p>
+              <div class="flex gap-1.5 flex-wrap">
+                @for(p of priorities; track p) {
+                  <button type="button" (click)="editPriority.set(p)" [class]="editPriority() === p ? 'border-blue-700 border-[1.5px] text-blue-700' : 'border-line border text-ink-mid'"
+                    class="text-[11.5px] px-2.5 py-1 rounded-full bg-white cursor-pointer transition-colors">
+                    {{ priorityShort(p) }}
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-2 justify-end border-t border-gray-100 py-3">
+            <button type="button" (click)="cancelEdit()" class="text-[13px] text-ink-mid px-3.5 py-2 hover:text-ink cursor-pointer">
+              Annulla
+            </button>
+            <button type="button" (click)="saveEdit()" [disabled]="!canSaveEdit()"
+              class="bg-plum-600 text-white text-[13px] px-3.5 py-2 rounded-lg hover:bg-plum-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+              {{ savingEdit() ? 'Salvataggio...' : 'Salva modifiche' }}
+            </button>
+          </div>
+        }
 
         @if (i.imageUrl) {
           <img [src]="'/api/issues/' + i.id + '/image'" alt="Allegato della segnalazione" class="max-h-72 mx-auto block rounded-lg border border-line">
-        } @else if (canEdit()) {
+        } @else if (canEdit() && !editing()) {
           <label class="block border border-dashed border-line rounded-lg py-6 text-center cursor-pointer hover:border-blue-400 transition-colors">
             <input type="file" accept="image/*" (change)="onFileSelected($event)" class="hidden">
             <span class="inline-flex items-center gap-2 text-[13px] text-ink-mid">

@@ -32,10 +32,36 @@ export class IssueDetail {
   error = signal<string | null>(null);
   sendingComment = signal(false);
 
+  editing = signal(false);
+  editTitle = signal('');
+  editDescription = signal('');
+  editType = signal<IssueType>('bug');
+  editPriority = signal<IssuePriority | null>(null);
+  savingEdit = signal(false);
+
+  readonly maxTitle = 200;
+
+  readonly types: IssueType[] = ['bug', 'question', 'documentation', 'feature'];
+  readonly typeShort: Record<IssueType, string> = {
+    bug: 'Bug',
+    question: 'Domanda',
+    documentation: 'Documentazione',
+    feature: 'Funzionalità'
+  };
+
+  readonly priorities: (IssuePriority | null)[] = [null, 'low', 'medium', 'high', 'critical'];
+
   readonly isAuthor = computed(() => this.issue()?.authorId === this.currentUser()?.id);
   readonly isAssignee = computed(() => this.issue()?.assigneeId === this.currentUser()?.id);
   readonly canChangeStatus = computed(() => this.isAssignee() || this.isAdmin());
   readonly canEdit = computed(() => this.isAuthor() || this.isAdmin());
+
+  readonly canSaveEdit = computed(() => 
+    this.editTitle().trim().length >= 3 &&
+    this.editTitle().length <= this.maxTitle &&
+    this.editDescription().trim().length > 0 &&
+    !this.savingEdit(),
+  );
 
   readonly statusLabel: Record<IssueStatus, string> = {
     todo: 'Todo',
@@ -82,7 +108,7 @@ export class IssueDetail {
         this.issue.set(issue);
         this.loading.set(false);
       },
-      error: (err) => {
+      error: () => {
         this.error.set('Issue non trovata');
         this.loading.set(false);
       },
@@ -163,5 +189,50 @@ export class IssueDetail {
       next: (update) => this.issue.set({ ...this.issue()!, ...update }),
       error: (err) => this.error.set(err.error?.error ?? 'Errore durante l\'impostazione della scadenza'),
     });
+  }
+
+  startEdit () {
+    const issue = this.issue();
+
+    if (!issue)
+      return;
+
+    this.editTitle.set(issue.title);
+    this.editDescription.set(issue.description);
+    this.editType.set(issue.type);
+    this.editPriority.set(issue.priority);
+    this.editing.set(true);
+  }
+
+  cancelEdit() {
+    this.editing.set(false);
+    this.error.set(null);
+  }
+
+  saveEdit() {
+    if (!this.canSaveEdit())
+      return;
+
+    this.savingEdit.set(true);
+    this.issueService.update(this.issueId, {
+      title: this.editTitle().trim(),
+      description: this.editDescription().trim(),
+      type: this.editType(),
+      priority: this.editPriority(),
+    }).subscribe({
+      next: (update) => {
+        this.issue.set(update);
+        this.editing.set(false);
+        this.savingEdit.set(false);
+      },
+      error: (err) => {
+        this.savingEdit.set(false);
+        this.error.set(err.error?.error ?? 'Errore durante il salvataggio delle modifiche');
+      },
+    });
+  }
+
+  priorityShort(priority: IssuePriority | null): string {
+    return priority === null ? '-' : this.priorityLabel[priority];
   }
 }

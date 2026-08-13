@@ -104,4 +104,14 @@ export class IssueService {
     formData.append('image', file);
     return this.http.post<Issue>(`/api/issues/${issueId}/image`, formData);
   }
+
+  /**
+   * Servizio che permette di modificare una issue
+   * @param id 
+   * @param data 
+   * @returns 
+   */
+  update(id: string, data: { title?: string; description?: string; type?: IssueType; priority?: IssuePriority | null }) {
+    return this.http.patch<Issue>(`/api/issues/${id}`, data);
+  }
 }
