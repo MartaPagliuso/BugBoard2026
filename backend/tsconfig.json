@@ -5,7 +5,7 @@
 
     "module": "nodenext",
     "target": "esnext",
-    "types": ["node"],
+    "types": ["node", "vitest/globals"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
 
