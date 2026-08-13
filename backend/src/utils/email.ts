@@ -17,7 +17,7 @@ export function buildEmail(nome: string, cognome: string, suffix?: number): stri
   const nomeFinale = slugify(nome);
   const cognomeFinale = slugify(cognome);
 
-  if (!nome || !cognome)
+  if (!nomeFinale || !cognomeFinale)
     throw new Error('[!] Nome non valido.');
 
   return `${nomeFinale}.${cognomeFinale}${suffix ?? ''}@${DOMAIN}`;
