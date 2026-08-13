@@ -1,6 +1,6 @@
 import { type Request, type Response } from 'express';
 import { json, z } from 'zod';
-import * as notificationService from '../service/notification.service.js';
+import { notificationService } from '../container.js';
 
 const idParamSchema = z.object({
   id: z.string().uuid(),

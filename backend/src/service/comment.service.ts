@@ -1,8 +1,11 @@
-import * as issueRepository from "../repository/issues.repository.js";
+import { IssueRepository } from "../repository/issues.repository.js";
 import { CommentRepository } from "../repository/comments.repository.js";
 
 export class CommentService {
-  constructor(private readonly commentRepository: CommentRepository) {}
+  constructor(
+    private readonly commentRepository: CommentRepository,
+    private readonly issueRepository: IssueRepository
+  ) {}
 
   /**
    * Servizio che permette di inserire un nuovo commento
@@ -12,7 +15,7 @@ export class CommentService {
    * @returns 
    */
   async createComment(issueId: string, body: string, authorId: string) {
-    const issue = await issueRepository.findIssueById(issueId);
+    const issue = await this.issueRepository.findById(issueId);
     if (!issue)
       throw new Error('[!] Issue non trovata');
   
@@ -25,7 +28,7 @@ export class CommentService {
    * @returns 
    */
   async listCommentsByIssue(issueId: string) {
-    const issue = await issueRepository.findIssueById(issueId);
+    const issue = await this.issueRepository.findById(issueId);
     if (!issue)
       throw new Error('[!] Issue non trovata');
   

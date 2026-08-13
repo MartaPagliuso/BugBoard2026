@@ -1,6 +1,6 @@
 import { type Request, type Response } from "express";
 import { z } from "zod";
-import * as issueService from "../service/issue.service.js";
+import { issueService } from "../container.js";
 
 const createIssueSchema = z.object({
   title: z.string().min(3).max(200),

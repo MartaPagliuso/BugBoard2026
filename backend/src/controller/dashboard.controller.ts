@@ -1,5 +1,5 @@
 import { type Request, type Response } from 'express';
-import * as dashboardService from '../service/dashboard.service.js';
+import { dashboardService } from '../container.js';
 
 export class DashboardController {
   static async getStats(req: Request, res: Response) {

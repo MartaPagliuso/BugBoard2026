@@ -1,5 +1,5 @@
 import { z } from "zod";
-import * as commentService from "../service/comment.service.js";
+import { commentService } from "../container.js";
 import { type Request, type Response } from "express";
 
 const createCommentSchema = z.object({
