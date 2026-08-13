@@ -1,13 +1,13 @@
 import { type Request, type Response } from "express";
-import * as userService from '../service/user.service.js';
 import {email, z} from 'zod';
+import { userService } from "../container.js";
 
 // serve per valida l'input
 const createUserSchema = z.object({
   nome: z.string().min(1).max(50),
   cognome: z.string().min(1).max(50),
   password: z.string().min(8),
-  role: z.enum(['viewer', 'user']).optional(),
+  role: z.enum(['viewer', 'user', 'admin']).optional(),
 });
 
 export class UserController {

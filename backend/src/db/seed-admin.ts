@@ -1,5 +1,6 @@
 import { hashPassword } from "../utils/password.js";
-import * as userRepository from '../repository/users.repository.js';
+import { userRepository } from "../container.js";
+
 
 export async function ensureDefaultAdmin(): Promise<void> {
   const email = process.env.ADMIN_EMAIL;
@@ -9,13 +10,13 @@ export async function ensureDefaultAdmin(): Promise<void> {
     throw new Error('[!] Email e Password dell\'admin di default non presenti.');
   }
 
-  const existing = await userRepository.findUserByEmail(email);
+  const existing = await userRepository.findByEmail(email);
   if (existing) {
     console.log('Admin di default già presente. Nessuna operazione effettuata.');
     return;
   }
 
-  await userRepository.insertUser({
+  await userRepository.insert({
     nome: 'Admin',
     cognome: 'Bugboard',
     email,

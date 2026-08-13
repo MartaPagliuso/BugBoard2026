@@ -1,6 +1,6 @@
 import { type Request, type Response, type NextFunction } from "express";
 import { TokenPayload, verifyToken } from "../utils/jwt.js";
-import * as userRespository from "../repository/users.repository.js";
+import { userRepository } from "../container.js";
 import { type UserRole } from '../db/schema/users.js';
 
 declare global {
@@ -59,7 +59,7 @@ export function requireRole(...roles: UserRole[]) {
 export async function blockIfMustChangePassword(req: Request, res: Response, next: NextFunction) {
   if (!req.user) return next();
 
-  const user = await userRespository.findUserById(req.user.sub);
+  const user = await userRepository.findById(req.user.sub);
 
   if (user?.mustChangePassword) {
     return res.status(403).json({
