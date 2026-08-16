@@ -61,7 +61,7 @@ export class UserController {
       const profile = await userService.getProfile(req.user!.sub);
       return res.status(200).json(profile);
     } catch (error) {
-      if (error instanceof Error && error.message === '[!] Utente non trovato')
+      if (error instanceof Error && error.message === '[!] ovato')
         return res.status(404).json({ error: '[!] Errore: utente non trovato' });
 
       console.error(error);
