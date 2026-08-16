@@ -22,7 +22,7 @@ jobs:
 
       - name: Installa le dipendenze
         working-directory: ./backend
-        run: npm ci --no-optional
+        run: npm install
 
       - name: Esegui i test con copertura
         working-directory: ./backend
