@@ -18,11 +18,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Installa le dipendenze
         working-directory: ./backend
-        run: npm ci
+        run: npm ci --no-optional
 
       - name: Esegui i test con copertura
         working-directory: ./backend
