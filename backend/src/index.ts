@@ -1,4 +1,4 @@
-import express, { type Express, type Request, type Response } from 'express';
+import express, { type Express } from 'express';
 import { userRouter } from './routes/users.route.js';
 import { authRouter } from './routes/auth.route.js';
 import { issueRouter } from './routes/issue.route.js';
@@ -9,6 +9,7 @@ import { dashboardRouter } from './routes/dashboard.route.js';
 import { notificationRouter } from './routes/notification.route.js';
 
 const app: Express = express();
+app.disable('x-powered-by');
 const PORT = 3000;
 
 app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true}));
@@ -30,9 +31,11 @@ async function bootstrap() {
   app.listen(PORT, () => console.log(`Server in ascolto sulla porta ${PORT}...`));
 }
 
-bootstrap().catch((err) => {
-  console.error('Avvio fallito: ', err);
+try {
+  await bootstrap();
+} catch (err) {
+  console.error('Avvio fallito:', err);
   process.exit(1);
-});
+}
 
 

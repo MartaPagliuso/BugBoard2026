@@ -27,7 +27,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   try {
     req.user = verifyToken(token);
     return next();
-  } catch (error) {
+  } catch {
     return res.status(401).json({ error: '[!] Token non valido o scaduto' });
   }
 }

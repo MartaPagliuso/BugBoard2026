@@ -76,7 +76,7 @@ export class NotificationController {
       return res.status(200).json({ message: 'Tutte le notifiche sono state segnate correttamente' });
     } catch (error) {
       console.error(error);
-      return res.status(500),json({ error: '[!] Errore durante l\'aggiornamento delle notifiche' });
+      return res.status(500).json({ error: '[!] Errore durante l\'aggiornamento delle notifiche' });
     }
   }
 }

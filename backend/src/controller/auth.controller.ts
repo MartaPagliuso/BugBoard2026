@@ -121,7 +121,7 @@ export class AuthController {
       const { accessToken, refreshToken } = await authService.refresh(token);
       setAuthCookie(res, accessToken, refreshToken);
       return res.status(200).json({ message: 'Token rinnovato' });
-    } catch (error) {
+    } catch {
       res.clearCookie('access_token');
       res.clearCookie('refresh_token', { path: '/auth/refresh' });
       return res.status(401).json({ error: '[!] Errore: Refresh Token non valido.' });
