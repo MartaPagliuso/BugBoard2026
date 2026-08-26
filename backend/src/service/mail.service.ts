@@ -2,12 +2,12 @@ import { transporter, MAIL_FROM } from '../utils/mailer.js';
 
 export class MailService {
   private escapeHtml(value: string): string {
-    return value
-      .replaceAll(/&/g, '&amp;')
-      .replaceAll(/</g, '&lt;')
-      .replaceAll(/>/g, '&gt;')
-      .replaceAll(/"/g, '&quot;');
-  }
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+}
 
   /**
    * Servizio che invia l'email all'utente quando la issue viene risolta
