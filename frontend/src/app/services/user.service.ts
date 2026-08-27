@@ -1,17 +1,19 @@
 import { Injectable, inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { User, AssignableUser } from "../models/user.model";
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root'})
 export class UserService {
   private readonly http = inject(HttpClient);
+  private readonly base = `${environment.apiUrl}/users`;
 
   /**
    * Servizio che elenca tutti gli utenti
    * @returns 
    */
   list() {
-    return this.http.get<User[]>('/api/users');
+    return this.http.get<User[]>(this.base);
   }
 
   /**
@@ -19,7 +21,7 @@ export class UserService {
    * @returns 
    */
   listAssignable() {
-    return this.http.get<AssignableUser[]>('/api/users/assignable');
+    return this.http.get<AssignableUser[]>(`${this.base}/assignable`);
   }
 
   /**
@@ -27,6 +29,6 @@ export class UserService {
    * @param data 
    */
   create(data: { nome: string; cognome: string; password: string; role?: 'user' | 'viewer' }) {
-    return this.http.post<User>('/api/users', data);
+    return this.http.post<User>(this.base, data);
   }
 }

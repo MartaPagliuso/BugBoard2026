@@ -2,10 +2,12 @@ import { Injectable, inject } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Issue, IssueFilters, IssuePriority, IssueStatus, IssueType, PaginatedIssues } from "../models/issue.model";
 import { Comment } from "../models/comment.model";
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class IssueService {
   private readonly http = inject(HttpClient);
+  private readonly base = `${environment.apiUrl}/issues`;
 
   /**
    * Servizio che elenca tutte le issue presenti
@@ -19,7 +21,7 @@ export class IssueService {
     if (filters.type) params = params.set('type', filters.type);
     if (filters.priority) params = params.set('priority', filters.priority);
 
-    return this.http.get<PaginatedIssues>('/api/issues', { params });
+    return this.http.get<PaginatedIssues>(this.base, { params });
   }
 
   /**
@@ -27,7 +29,7 @@ export class IssueService {
    * @param id 
    */
   getById(id: string) {
-    return this.http.get<Issue>(`/api/issues/${id}`);
+    return this.http.get<Issue>(`${this.base}/${id}`);
   }
 
   /**
@@ -35,7 +37,7 @@ export class IssueService {
    * @param data 
    */
   create(data: { title: string; description: string; type: IssueType; priority?: IssuePriority }) {
-    return this.http.post<Issue>('/api/issues', data);
+    return this.http.post<Issue>(this.base, data);
   }
 
   /**
@@ -44,7 +46,7 @@ export class IssueService {
    * @param status 
    */
   updateStatus(id: string, status: IssueStatus) {
-    return this.http.patch<Issue>(`/api/issues/${id}/status`, { status });
+    return this.http.patch<Issue>(`${this.base}/${id}/status`, { status });
   }
 
   /**
@@ -54,7 +56,7 @@ export class IssueService {
    * @returns 
    */
   assign(id: string, assigneeId: string) {
-    return this.http.patch<Issue>(`/api/issues/${id}/assignee`, { assigneeId });
+    return this.http.patch<Issue>(`${this.base}/${id}/assignee`, { assigneeId });
   }
 
   /**
@@ -64,7 +66,7 @@ export class IssueService {
    * @returns 
    */
   setDueDate(id: string, dueDate: string | null) {
-    return this.http.patch<Issue>(`/api/issues/${id}/due-date`, { dueDate });
+    return this.http.patch<Issue>(`${this.base}/${id}/due-date`, { dueDate });
   }
 
   /**
@@ -73,7 +75,7 @@ export class IssueService {
    * @returns 
    */
   remove(id: string) {
-    return this.http.delete<void>(`api/issues/${id}`);
+    return this.http.delete<void>(`${this.base}/${id}`);
   }
 
   /**
@@ -81,7 +83,7 @@ export class IssueService {
    * @param issueId 
    */
   listComments(issueId: string) {
-    return this.http.get<Comment[]>(`api/issues/${issueId}/comments`);
+    return this.http.get<Comment[]>(`${this.base}/${issueId}/comments`);
   }
 
   /**
@@ -91,7 +93,7 @@ export class IssueService {
    * @returns 
    */
   addComment(issueId: string, body: string) {
-    return this.http.post<Comment>(`/api/issues/${issueId}/comments`, { body });
+    return this.http.post<Comment>(`${this.base}/${issueId}/comments`, { body });
   }
 
   /**
@@ -102,7 +104,7 @@ export class IssueService {
   uploadImage(issueId: string, file: File) {
     const formData = new FormData();
     formData.append('image', file);
-    return this.http.post<Issue>(`/api/issues/${issueId}/image`, formData);
+    return this.http.post<Issue>(`${this.base}/${issueId}/image`, formData);
   }
 
   /**
@@ -112,6 +114,6 @@ export class IssueService {
    * @returns 
    */
   update(id: string, data: { title?: string; description?: string; type?: IssueType; priority?: IssuePriority | null }) {
-    return this.http.patch<Issue>(`/api/issues/${id}`, data);
+    return this.http.patch<Issue>(`${this.base}/${id}`, data);
   }
 }

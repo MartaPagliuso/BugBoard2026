@@ -7,6 +7,7 @@ import { AuthService } from "../../services/auth.service";
 import { Issue, IssueStatus, IssueType, IssuePriority, IssuePerson } from "../../models/issue.model";
 import { Comment } from "../../models/comment.model";
 import { AssigneePicker } from "../../components/assignee-picker/assignee-picker";
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-issue-detail',
@@ -235,4 +236,8 @@ export class IssueDetail {
   priorityShort(priority: IssuePriority | null): string {
     return priority === null ? '-' : this.priorityLabel[priority];
   }
+
+  imageUrl(id: string): string {
+  return `${environment.apiUrl}/issues/${id}/image`;
+}
 }

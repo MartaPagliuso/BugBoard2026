@@ -2,10 +2,12 @@ import { Injectable, inject, signal } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { tap } from "rxjs";
 import { Notification, NotificationList } from "../models/notification.model";
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private readonly http = inject(HttpClient);
+  private readonly base = `${environment.apiUrl}/notifications`;
 
   readonly unreadCount = signal(0);
 
@@ -14,7 +16,7 @@ export class NotificationService {
    * @returns 
    */
   list() {
-    return this.http.get<NotificationList>('/api/notification');
+    return this.http.get<NotificationList>(this.base);
   }
 
   /**
@@ -23,7 +25,7 @@ export class NotificationService {
    */
   fetchUnreadCount() {
     return this.http
-      .get<{ count: number }>('/api/notification/unread-count')
+      .get<{ count: number }>(`${this.base}/unread-count`)
       .pipe(tap((res) => this.unreadCount.set(res.count)));
   }
 
@@ -33,13 +35,13 @@ export class NotificationService {
    * @returns 
    */
   markAsRead(id: string) {
-    return this.http.patch<Notification>(`/api/notification/${id}/read`, {});
+    return this.http.patch<Notification>(`${this.base}/${id}/read`, {});
   }
 
   /**
    * Servizio che marca tutte le notifiche come lette
    */
   markAllAsRead() {
-    return this.http.patch('/api/notification/read-all', {});
+    return this.http.patch(`${this.base}/read-all`, {});
   }
 }

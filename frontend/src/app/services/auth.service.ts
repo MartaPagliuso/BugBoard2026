@@ -2,10 +2,12 @@ import { Injectable, inject, signal, computed } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { tap, catchError, of } from "rxjs";
 import { User } from "../models/user.model";
+import { environment } from "../../environments/environment";
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly base = environment.apiUrl;
 
   readonly currentUser = signal<User | null>(null);
   readonly isLoggedIn = computed(() => this.currentUser() !== null);
@@ -31,7 +33,7 @@ export class AuthService {
    */
   login(email: string, password: string) {
     return this.http
-      .post<{ user: User }>('/api/auth/login', { email, password })
+      .post<{ user: User }>(`${this.base}/auth/login`, { email, password })
       .pipe(tap((res) => this.currentUser.set(res.user)));
   }
 
@@ -40,7 +42,7 @@ export class AuthService {
    */
   logout() {
     return this.http
-      .post('/api/auth/logout', {})
+      .post(`${this.base}/auth/logout`, {})
       .pipe(tap(() => this.currentUser.set(null)));
   }
 
@@ -49,7 +51,7 @@ export class AuthService {
    * Se qualcosa va storto, le azzera
    */
   loadCurrentUser() {
-    return this.http.get<User>('/api/users/me').pipe(
+    return this.http.get<User>(`${this.base}/users/me`).pipe(
       tap((user) => this.currentUser.set(user)),
       catchError(() => {
         this.currentUser.set(null);
@@ -65,7 +67,7 @@ export class AuthService {
    */
   changePassword(currentPassword: string, newPassword: string) {
     return this.http
-      .post<{ message: string }>('/api/auth/change-password', { currentPassword, newPassword })
+      .post<{ message: string }>(`${this.base}/auth/change-password`, { currentPassword, newPassword })
       .pipe(tap(() => this.currentUser.set(null)));
   } 
 
