@@ -10,7 +10,7 @@ import { notificationRouter } from './routes/notification.route.js';
 
 const app: Express = express();
 app.disable('x-powered-by');
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true}));
 app.use(express.json());

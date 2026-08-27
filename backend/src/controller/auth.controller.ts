@@ -19,14 +19,16 @@ const changePasswordSchema = z.object({
    * @param refreshToken 
    */
   function setAuthCookie(res: Response, accessToken: string, refreshToken: string) {
+    const isProduction = process.env.NODE_ENV === 'production';
+    
     const base = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict' as const,
+      secure: isProduction,
+      sameSite: (isProduction ? 'none' : 'strict') as 'none' | 'strict',
     };
 
     res.cookie('access_token', accessToken, { ...base, maxAge: 15 * 60 * 1000 });
-    res.cookie('refresh_token', refreshToken, { ...base, maxAge: 7 * 24 * 60 * 60 * 1000, path:'/auth/refresh' });
+    res.cookie('refresh_token', refreshToken, { ...base, maxAge: 7 * 24 * 60 * 60 * 1000 });
   }
 
 export class AuthController {
