@@ -31,7 +31,7 @@ export class IssueRepository {
 
     if (filters.status) conditions.push(eq(issues.status, filters.status));
     if (filters.type) conditions.push(eq(issues.type, filters.type));
-    if (filters.priority) conditions.push(eq(issues.priority, issues.priority));
+    if (filters.priority) conditions.push(eq(issues.priority, filters.priority));
     if (filters.assigneeId) conditions.push(eq(issues.assigneeId, filters.assigneeId));
     if (filters.authorId) conditions.push(eq(issues.authorId, filters.authorId));
 
