@@ -185,6 +185,7 @@ export class IssueDetail {
   }
 
   setDueDate(value: string) {
+    this.error.set(null);
     const iso = value ? new Date(value + 'T23:59:59').toISOString() : null;
     this.issueService.setDueDate(this.issueId, iso).subscribe({
       next: (update) => this.issue.set({ ...this.issue()!, ...update }),
