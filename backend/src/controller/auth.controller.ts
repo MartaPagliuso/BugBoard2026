@@ -42,7 +42,7 @@ export class AuthController {
     const parsed = loginSchema.safeParse(req.body);
 
     if (!parsed.success)
-      return res.status(400).json({ error: '[!] Credenziali non valide.'});
+      return res.status(401).json({ error: '[!] Credenziali non valide.'});
 
     try {
       const {accessToken, refreshToken, user} = await authService.login(parsed.data.email, parsed.data.password);
@@ -51,7 +51,7 @@ export class AuthController {
       return res.status(200).json({ user });
 
     } catch (error) {
-      if (error instanceof Error && error.message === '[!] Errore: password non valida.') {
+      if (error instanceof Error && error.message === '[!] Credenziali non valide') {
         return res.status(401).json({ error: '[!] Errore: credenziali non valide.' });
       }
 

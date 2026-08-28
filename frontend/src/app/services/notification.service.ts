@@ -7,7 +7,7 @@ import { environment } from '../../environments/environment';
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private readonly http = inject(HttpClient);
-  private readonly base = `${environment.apiUrl}/notifications`;
+  private readonly base = `${environment.apiUrl}/notification`;
 
   readonly unreadCount = signal(0);
 
