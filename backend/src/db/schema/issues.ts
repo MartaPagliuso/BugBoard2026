@@ -1,5 +1,6 @@
 import { pgEnum, pgTable as table, uuid, text, timestamp } from "drizzle-orm/pg-core";
 import { users } from "./users.js";
+import { customType } from "drizzle-orm/pg-core";
 
 export const issueType = pgEnum('issue_type', ['question', 'bug', 'documentation', 'feature']);
 export const issueStatus = pgEnum('issue_status', ['todo', 'in_progress', 'done', 'closed']);
@@ -8,6 +9,12 @@ export const issuePriority = pgEnum('issue_priority', ['low', 'medium', 'high', 
 export type IssueStatus = (typeof issueStatus.enumValues)[number];
 export type IssueType = (typeof issueType.enumValues)[number];
 export type IssuePriority = (typeof issuePriority.enumValues)[number];
+
+const bytea = customType<{ data: Buffer; driverData: Buffer}>({
+  dataType() {
+    return 'bytea';
+  },
+});
 
 export const issues = table('issues', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -23,6 +30,9 @@ export const issues = table('issues', {
 
   dueDate: timestamp('due_date', { withTimezone: true }),
   resolvedAt: timestamp('resolved_at', { withTimezone: true}),
+
+  imageData: bytea('image_data'),
+  imageMimeType: text('image_mime_type'),
 
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()

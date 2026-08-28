@@ -97,7 +97,7 @@
           </div>
         }
 
-        @if (i.imageUrl) {
+        @if (i.hasImage) {
           <img [src]="imageUrl(i.id)" alt="Allegato della segnalazione" class="max-h-72 mx-auto block rounded-lg border border-line">
         } @else if (canEdit() && !editing()) {
           <label class="block border border-dashed border-line rounded-lg py-6 text-center cursor-pointer hover:border-blue-400 transition-colors">

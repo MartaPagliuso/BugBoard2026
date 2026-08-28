@@ -15,7 +15,7 @@ export interface Issue {
   type: IssueType;
   status: IssueStatus;
   priority: IssuePriority | null;
-  imageUrl: string | null;
+  hasImage: boolean;
   dueDate: string | null;
   resolvedAt: string | null;
   createdAt: string;

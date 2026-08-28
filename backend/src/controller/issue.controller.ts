@@ -245,8 +245,10 @@ export class IssueController {
       return res.status(400).json({ error: 'Id non valido' });
 
     try {
-      const filepath = await issueService.getIssueImagePath(params.data.id);
-      return res.sendFile(filepath);
+      const image = await issueService.getIssueImage(params.data.id);
+      res.setHeader('Content-Type', image.mimeType ?? 'image/webp');
+      res.setHeader('Cache-Control', 'private, max-age=3600');
+      return res.send(image.data);
     } catch (error) {
       if (error instanceof Error && (error.message === '[!] Issue non trovata' || error.message === '[!] Immagine non trovata' ))
         return res.status(404).json({ error: 'Immagine non trovata' });

@@ -174,44 +174,43 @@ export class IssueService {
    */
   async setIssueImage(issueId: string, buffer: Buffer, userId: string, userRole: UserRole) {
     const issue = await this.issueRepository.findById(issueId);
-    if (!issue)
+
+    if (!issue) 
       throw new Error('[!] Issue non trovata');
-  
+
     if (issue.authorId !== userId && userRole !== 'admin')
-      throw new Error('[!] Vietato')
-  
-    await fs.mkdir(UPLOAD_DIR, { recursive: true });
-    const filename = `${crypto.randomUUID()}.webp`;
-  
+      throw new Error('[!] Vietato');
+
+    let processed: Buffer;
+
     try {
-      await sharp(buffer)
+      processed = await sharp(buffer)
         .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
         .webp({ quality: 80 })
-        .toFile(path.join(UPLOAD_DIR, filename));
-    } catch {
-      throw new Error('[!] Immagine non valida')
+        .toBuffer();
+    } catch (error) {
+      throw new Error('[!] Nome non valido');
     }
-  
-    // rimuove la precedente, se c'era
-    if (issue.imageUrl)
-      await fs.unlink(path.join(UPLOAD_DIR, path.basename(issue.imageUrl))).catch(() => {});
-  
-    await this.issueRepository.update(issueId, { imageUrl: filename, updatedAt: new Date() });
-  
+
+    await this.issueRepository.update(issueId, {
+      imageData: processed,
+      imageMimeType: 'image/wepb',
+      updatedAt: new Date(),
+    });
+
     return this.issueRepository.findById(issueId);
   }
 
   /**
-   * Servizio che prende il percorso di una immagina di una issue
+   * Servizio che prende l'immagina di una issue
    * @param issueId 
    */
-  async getIssueImagePath(issueId: string) {
-    const issue = await this.issueRepository.findById(issueId);
-  
-    if (!issue) throw new Error('[!] Issue non trovata');
-    if (!issue.imageUrl) throw new Error('[!] Immagine non trovata');
-  
-    return path.join(UPLOAD_DIR, path.basename(issue.imageUrl));
+  async getIssueImage(issueId: string) {
+    const row = await this.issueRepository.findImageById(issueId);
+    if (!row?.data)
+      throw new Error('[!] Immagine non trovata');
+
+    return row;
   }
 
   /**
@@ -260,6 +259,10 @@ export class IssueService {
   
     await this.issueRepository.delete(issueId);
   }
+
+  
+
+
 
 }
 

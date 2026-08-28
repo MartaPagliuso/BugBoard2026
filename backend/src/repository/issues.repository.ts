@@ -1,4 +1,4 @@
-import { eq, desc, and, or, ilike, count, type SQL } from 'drizzle-orm';
+import { eq, desc, and, or, ilike, count, sql, type SQL } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { db } from "../db/db.js";
 import { issues, type InsertIssue } from "../db/schema/issues.js";
@@ -130,6 +130,7 @@ export class IssueRepository {
         nome: assignee.nome,
         cognome: assignee.cognome
       },
+      hasImage: sql<boolean>`(${issues.imageData} IS NOT NULL)`,
     })
       .from(issues)
       .innerJoin(author, eq(issues.authorId, author.id))
@@ -158,5 +159,22 @@ export class IssueRepository {
   async delete(id: string) {
     await db.delete(issues).where(eq(issues.id, id));
   }
+
+  /**
+   * Metodo che restituisce l'immagine tramite il suo id
+   * @param id 
+   * @returns 
+   */
+  async findImageById(id: string) {
+  const [row] = await db.select({
+    data: issues.imageData,
+    mimeType: issues.imageMimeType,
+  })
+    .from(issues)
+    .where(eq(issues.id, id))
+    .limit(1);
+
+  return row;
+}
 }
 
