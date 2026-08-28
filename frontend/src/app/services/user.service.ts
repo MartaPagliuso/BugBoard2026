@@ -28,7 +28,7 @@ export class UserService {
    * Servizio che permette di creare un nuovo utente
    * @param data 
    */
-  create(data: { nome: string; cognome: string; password: string; role?: 'user' | 'viewer' }) {
+  create(data: { nome: string; cognome: string; password: string; role?: 'user' | 'viewer' | 'admin'}) {
     return this.http.post<User>(this.base, data);
   }
 }

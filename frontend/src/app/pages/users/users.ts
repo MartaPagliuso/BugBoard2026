@@ -23,7 +23,7 @@ export class Users {
   nome = signal('');
   cognome = signal('');
   password = signal('');
-  role = signal<'user' | 'viewer'>('user');
+  role = signal<'user' | 'viewer' | 'admin'>('user');
   saving = signal(false);
 
   readonly roleLabel: Record<string, string> = {

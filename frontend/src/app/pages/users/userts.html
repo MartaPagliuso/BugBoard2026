@@ -106,6 +106,12 @@
             class="text-xs px-2.5 py-1.5 rounded-md bg-white cursor-pointer">
             Sola lettura
           </button>
+          <button type="button" (click)="role.set('admin')"
+            title="Accesso completo: gestisce account, assegnazioni, scadenze ed eliminazioni"
+            [class]="role() === 'admin' ? 'border-plum-600 border-[1.5px] text-plum-600' : 'border-line border text-ink-mid'"
+            class="text-xs px-2.5 py-1.5 rounded-md bg-white cursor-pointer">
+            Amministratore
+          </button>
         </div>
       </div>
     </div>
@@ -133,7 +139,7 @@
   </svg>
   <input type="text" name="search" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Cerca per nome o email" class="flex-1 text-sm outline-none bg-transparent">
   @if (search()) {
-    <button type="text" (click)="search.set('')" aria-label="Cancella ricerca" class="text-gray-400 hover:text-ink cursor-pointer shrink-0">
+    <button type="button" (click)="search.set('')" aria-label="Cancella ricerca" class="text-gray-400 hover:text-ink cursor-pointer shrink-0">
       <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
         fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M18 6 6 18" /><path d="m6 6 12 12" />
