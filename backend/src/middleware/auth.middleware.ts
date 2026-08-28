@@ -22,13 +22,13 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const token = req.cookies?.access_token;
 
   if (!token)
-    return res.status(401).json({ error: '[!] Autenticazione richiesta.' });
+    return res.status(401).json({ error: 'Autenticazione richiesta.' });
 
   try {
     req.user = verifyToken(token);
     return next();
   } catch {
-    return res.status(401).json({ error: '[!] Token non valido o scaduto' });
+    return res.status(401).json({ error: 'Token non valido o scaduto' });
   }
 }
 
@@ -40,10 +40,10 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
 export function requireRole(...roles: UserRole[]) {
   return function (req: Request, res: Response, next: NextFunction) {
     if (!req.user)
-      return res.status(401).json({ error: '[!] Autenticazione richiesta.' });
+      return res.status(401).json({ error: 'Autenticazione richiesta.' });
 
     if (!roles.includes(req.user.role)) 
-      return res.status(403).json({ error: '[!] Permessi insufficienti.' });
+      return res.status(403).json({ error: 'Permessi insufficienti.' });
 
     return next();
   }
@@ -73,7 +73,7 @@ export async function blockIfMustChangePassword(req: Request, res: Response, nex
 
 export function denyViewers(req: Request, res: Response, next: NextFunction) {
   if (req.user?.role === 'viewer')
-    return res.status(403).json({ error: '[!] Errore: account in sola lettura' });
+    return res.status(403).json({ error: 'Account in sola lettura' });
 
   return next();
 }

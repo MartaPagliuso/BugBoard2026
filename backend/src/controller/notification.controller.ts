@@ -19,7 +19,7 @@ export class NotificationController {
   static async list(req: Request, res: Response) {
     const parsed = listQuerySchema.safeParse(req.query);
     if (!parsed.success)
-      return res.status(400).json({ error: '[!] Errore: parametri non validi' });
+      return res.status(400).json({ error: 'Parametri non validi' });
 
     try {
       const items = await notificationService.listNotifications(
@@ -30,7 +30,7 @@ export class NotificationController {
       return res.status(200).json(items);
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: '[!] Errore durante il recupero delle notifiche' });
+      return res.status(500).json({ error: 'Errore durante il recupero delle notifiche' });
     }
   }
 
@@ -44,7 +44,7 @@ export class NotificationController {
       return res.status(200).json({ count: await notificationService.getUnreadCount(req.user!.sub) });
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: '[!] Errore durante il conteggio delle notifiche non lette' });
+      return res.status(500).json({ error: 'Errore durante il conteggio delle notifiche non lette' });
     }
   }
 
@@ -57,13 +57,13 @@ export class NotificationController {
   static async markAsRead(req: Request, res: Response) {
     const parsed = idParamSchema.safeParse(req.params);
     if (!parsed.success)
-      return res.status(400).json({ error: '[!] Errore: id non valido' });
+      return res.status(400).json({ error: 'Id non valido' });
 
     try {
       return res.status(200).json(await notificationService.markAsRead(parsed.data.id, req.user!.sub));
     } catch (error) {
       if (error instanceof Error && error.message === '[!] Notifica non trovata')
-        return res.status(404).json({ error: '[!] Errore: notifica non trovata' });
+        return res.status(404).json({ error: 'Notifica non trovata' });
 
       console.error(error);
       return res.status(500).json({ error: 'Errore durante l\'aggiornamento dello stato della notifica' });
@@ -76,7 +76,7 @@ export class NotificationController {
       return res.status(200).json({ message: 'Tutte le notifiche sono state segnate correttamente' });
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: '[!] Errore durante l\'aggiornamento delle notifiche' });
+      return res.status(500).json({ error: 'Errore durante l\'aggiornamento delle notifiche' });
     }
   }
 }

@@ -20,17 +20,17 @@ export class UserController {
     const parsed = createUserSchema.safeParse(req.body);
 
     if (!parsed.success)
-      return res.status(400).json({ error: '[!] Dati non validi', details: parsed.error.flatten() });
+      return res.status(400).json({ error: 'Dati non validi', details: parsed.error.flatten() });
 
     try {
       const user = await userService.createUser(parsed.data);
       return res.status(201).json(user);
     } catch (error) {
       if (error instanceof Error && error.message === '[!] Nome non valido.')
-        return res.status(400).json({ error: '[!] Errore: nome e cognome devono contenere lettere valide.' });
+        return res.status(400).json({ error: 'Nome e cognome devono contenere lettere valide.' });
 
       console.error(error);
-      res.status(500).json({ error: '[!] Errore durante la creazione di un nuovo utente.' });
+      res.status(500).json({ error: 'Errore durante la creazione di un nuovo utente.' });
     }
   }
 
@@ -46,7 +46,7 @@ export class UserController {
       return res.status(200).json(users);
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: '[!] Errore durante il recupero degli utenti' });
+      return res.status(500).json({ error: 'Errore durante il recupero degli utenti' });
     }
   }
 
@@ -62,10 +62,10 @@ export class UserController {
       return res.status(200).json(profile);
     } catch (error) {
       if (error instanceof Error && error.message === '[!] ovato')
-        return res.status(404).json({ error: '[!] Errore: utente non trovato' });
+        return res.status(404).json({ error: 'Utente non trovato' });
 
       console.error(error);
-      return res.status(500).json({ error: '[!] Errore durante il recupero del profilo' });
+      return res.status(500).json({ error: 'Errore durante il recupero del profilo' });
     }
   }
 
@@ -79,7 +79,7 @@ export class UserController {
       return res.status(200).json(await userService.listAssignableUsers());
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: '[!] Errore durante il recupero degli utenti' });
+      return res.status(500).json({ error: 'Errore durante il recupero degli utenti' });
     }
   }
 }

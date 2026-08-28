@@ -42,7 +42,7 @@ export class AuthController {
     const parsed = loginSchema.safeParse(req.body);
 
     if (!parsed.success)
-      return res.status(401).json({ error: '[!] Credenziali non valide.'});
+      return res.status(401).json({ error: 'Credenziali non valide.'});
 
     try {
       const {accessToken, refreshToken, user} = await authService.login(parsed.data.email, parsed.data.password);
@@ -52,7 +52,7 @@ export class AuthController {
 
     } catch (error) {
       if (error instanceof Error && error.message === '[!] Credenziali non valide') {
-        return res.status(401).json({ error: '[!] Errore: credenziali non valide.' });
+        return res.status(401).json({ error: 'Credenziali non valide.' });
       }
 
       console.error(error);
@@ -87,7 +87,7 @@ export class AuthController {
   static async changePassword(req: Request, res: Response) {
     const parsed = changePasswordSchema.safeParse(req.body);
     if (!parsed.success)
-      return res.status(400).json({ error: '[!] Errore: dati non validi.' });
+      return res.status(400).json({ error: 'Dati non validi.' });
 
     try {
       await authService.changePassword(
@@ -102,22 +102,22 @@ export class AuthController {
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === '[!] Credenziali non valide.')
-          return res.status(401).json({ error: '[!] Errore: password attuale non corretta.' });
+          return res.status(401).json({ error: 'Password attuale non corretta.' });
 
         if (error.message === '[!] Passoword identica')
-          return res.status(400).json({ error: '[!] Errore: la nuova password deve essere diversa da quella attuale.' });
+          return res.status(400).json({ error: 'La nuova password deve essere diversa da quella attuale.' });
       }
         
 
       console.error(error);
-      return res.status(500).json({ error: '[!] Errore durante il cambio password.' });
+      return res.status(500).json({ error: 'Errore durante il cambio password.' });
     }
   }
 
   static async refresh(req: Request, res: Response) {
     const token = req.cookies?.refresh_token;
     if (!token)
-      return res.status(401).json({ error: '[!] Errore: refresh token assente' });
+      return res.status(401).json({ error: 'Refresh token assente' });
 
     try {
       const { accessToken, refreshToken } = await authService.refresh(token);
@@ -126,7 +126,7 @@ export class AuthController {
     } catch {
       res.clearCookie('access_token');
       res.clearCookie('refresh_token', { path: '/auth/refresh' });
-      return res.status(401).json({ error: '[!] Errore: Refresh Token non valido.' });
+      return res.status(401).json({ error: 'Refresh Token non valido.' });
     }
   }
 }

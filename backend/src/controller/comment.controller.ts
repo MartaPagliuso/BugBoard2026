@@ -23,7 +23,7 @@ export class CommentController {
     const parsedBody = createCommentSchema.safeParse(req.body);
 
     if (!params.success || !parsedBody.success)
-      return res.status(400).json({ error: '[!] Errore: dati non validi' });
+      return res.status(400).json({ error: 'Dati non validi' });
 
     try {
       const comment = await commentService.createComment(
@@ -35,10 +35,10 @@ export class CommentController {
       return res.status(201).json(comment);
     } catch (error) {
       if (error instanceof Error && error.message === '[!] Issue non trovata')
-        return res.status(404).json({ error: '[!] Errore: issue non trovata'});
+        return res.status(404).json({ error: 'Issue non trovata'});
 
       console.error(error);
-      return res.status(500).json({ error: '[!] Errore durante la creazione del commento' });
+      return res.status(500).json({ error: 'Errore durante la creazione del commento' });
     }
   }
 
@@ -52,7 +52,7 @@ export class CommentController {
       return res.status(200).json(comments);
     } catch (error) {
       if (error instanceof Error && error.message === '[!] Issue non trovata')
-        return res.status(404).json({ error: '[!] Errore: issue non trovata' });
+        return res.status(404).json({ error: 'Issue non trovata' });
 
       console.error(error);
       return res.status(500).json({ error: 'Errore durante il recupero dei commenti.' });
