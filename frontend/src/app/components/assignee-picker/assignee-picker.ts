@@ -4,6 +4,7 @@ import { UserService } from "../../services/user.service";
 import { IssueService } from "../../services/issue.service";
 import { AssignableUser } from "../../models/user.model";
 import { Issue } from "../../models/issue.model";
+import { ToastService } from "../../services/toast.service";
 
 @Component({
   selector: 'app-assignee-picker',
@@ -14,6 +15,7 @@ export class AssigneePicker {
   private readonly userService = inject(UserService);
   private readonly issueService = inject(IssueService);
   private readonly host = inject(ElementRef);
+  private readonly toast = inject(ToastService);
 
   readonly issue = input.required<Issue>();
   readonly assigned = output<Issue>();
@@ -64,6 +66,7 @@ export class AssigneePicker {
         this.assigned.emit(update);
         this.open.set(false);
         this.query.set('');
+        this.toast.success('Segnalazione assegnata.');
       },
     });
   }

@@ -2,10 +2,11 @@ import { Component, inject, signal } from "@angular/core";
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
 import { AuthService } from "../services/auth.service";
 import { NotificationBell } from "../components/notification-bell/notification-bell";
+import { ToastContainer } from "../components/toast-container/toast-container";
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, NotificationBell],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, NotificationBell, ToastContainer],
   templateUrl: './layout.html',
 })
 export class Layout {

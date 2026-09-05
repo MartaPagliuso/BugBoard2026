@@ -8,6 +8,7 @@ import { Issue, IssueStatus, IssueType, IssuePriority, IssuePerson } from "../..
 import { Comment } from "../../models/comment.model";
 import { AssigneePicker } from "../../components/assignee-picker/assignee-picker";
 import { environment } from '../../../environments/environment';
+import { ToastService } from "../../services/toast.service";
 
 @Component({
   selector: 'app-issue-detail',
@@ -19,6 +20,7 @@ export class IssueDetail {
   private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
   
   readonly issueId = this.route.snapshot.paramMap.get('id')!;
   readonly currentUser = this.auth.currentUser;
@@ -39,6 +41,7 @@ export class IssueDetail {
   editType = signal<IssueType>('bug');
   editPriority = signal<IssuePriority | null>(null);
   savingEdit = signal(false);
+  uploadingImage = signal(false);
 
   readonly maxTitle = 200;
 
@@ -122,7 +125,10 @@ export class IssueDetail {
 
   changeStatus(status: IssueStatus) {
     this.issueService.updateStatus(this.issueId, status).subscribe({
-      next: (update) => this.issue.set({ ...this.issue()!, ...update }),
+      next: (update) => {
+        this.issue.set({ ...this.issue()!, ...update }),
+        this.toast.success('Stato aggiornato.');
+      },
       error: (err) => this.error.set(err.error?.error ?? 'Errore durante il cambio di stato'),
     });
   }
@@ -142,6 +148,7 @@ export class IssueDetail {
         this.comments.update((list) => [...list, comment]);
         this.newComment.set('');
         this.sendingComment.set(false); 
+        this.toast.success('Commento inviato.');
       },
       error: () => {
         this.sendingComment.set(false);
@@ -156,9 +163,17 @@ export class IssueDetail {
     if (!file)
       return;
 
+    this.uploadingImage.set(true);
     this.issueService.uploadImage(this.issueId, file).subscribe({
-      next: () => this.load(),
-      error: (err) => this.error.set(err.error?.error ?? 'Errore durante il caricamento dell\'immagine'),
+      next: () => {
+        this.load();
+        this.uploadingImage.set(false);
+        this.toast.success('Immagine caricata.');
+      },
+      error: (err) => {
+        this.uploadingImage.set(false);
+        this.error.set(err.error?.error ?? 'Errore durante il caricamento dell\'immagine');
+      }
     });
     input.value = '';
   }
@@ -188,7 +203,10 @@ export class IssueDetail {
     this.error.set(null);
     const iso = value ? new Date(value + 'T23:59:59').toISOString() : null;
     this.issueService.setDueDate(this.issueId, iso).subscribe({
-      next: (update) => this.issue.set({ ...this.issue()!, ...update }),
+      next: (update) => {
+        this.issue.set({ ...this.issue()!, ...update }),
+        this.toast.success('Scadenza aggiornata.');
+      },
       error: (err) => this.error.set(err.error?.error ?? 'Errore durante l\'impostazione della scadenza'),
     });
   }
@@ -226,6 +244,7 @@ export class IssueDetail {
         this.issue.set(update);
         this.editing.set(false);
         this.savingEdit.set(false);
+        this.toast.success('Modifiche salvate.');
       },
       error: (err) => {
         this.savingEdit.set(false);

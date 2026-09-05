@@ -3,6 +3,7 @@ import { FormsModule } from "@angular/forms";
 import { Router, RouterLink } from "@angular/router";
 import { IssueService } from "../../services/issue.service";
 import { IssueType, IssuePriority } from "../../models/issue.model";
+import { ToastService } from "../../services/toast.service";
 
 @Component({
   selector: 'app-issue-create',
@@ -12,6 +13,7 @@ import { IssueType, IssuePriority } from "../../models/issue.model";
 export class IssueCreate {
   private readonly issueService = inject(IssueService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   title = signal('');
   description = signal('');
@@ -56,7 +58,10 @@ export class IssueCreate {
       type: this.type()!,
       ...(this.priority() ? { priority: this.priority()! } : {}),
     }).subscribe({
-      next: (issue) => this.router.navigate(['/issues', issue.id]),
+      next: (issue) => {
+        this.toast.success('Segnalazione creata.');
+        this.router.navigate(['/issues', issue.id]);
+      },
       error: (err) => {
         this.loading.set(false);
         this.error.set(
