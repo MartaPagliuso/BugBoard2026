@@ -47,6 +47,8 @@
           <p class="text-xs text-ink-mid mb-3.5">
             Segnalata da <span class="text-ink">{{ personName(i.author) }}</span> · {{ i.createdAt | date: 'd MMMM y' }}
           </p>
+
+          <p class="text-sm text-ink leading-relaxed whitespace-pre-wrap mb-3.5">{{ i.description }}</p>
         } @else {
           <!-- SEZIONE MODIFICA -->
           <p class="text-[13px] font-medium text-ink mb-3">Modifica Segnalazione</p>
@@ -132,7 +134,7 @@
 
             <div class="flex-1 min-w-0">
               <p class="text-xs text-ink-mid mb-0.5">
-                <span class="text-ink font-medium">{{ personName(c.author) }}</span>
+                <span class="text-ink font-medium">{{ personName(c.author) }}</span>· {{ c.createdAt | date: 'd MMM, HH:mm' }}
               </p>
               <p class="text-[13.5px] text-ink leading-relaxed whitespace-pre-wrap"> {{ c.body }}</p>
             </div>
