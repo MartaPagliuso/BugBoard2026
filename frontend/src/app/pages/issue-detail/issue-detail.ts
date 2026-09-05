@@ -93,8 +93,8 @@ export class IssueDetail {
   readonly priorityClass: Record<IssuePriority, string> = {
     low: 'bg-gray-100 text-gray-700',
     medium: 'bg-amber-50 text-amber-800',
-    high: 'bg-red-50 text-red-800',
-    critical: 'bg-red-100 text-red-900',
+    high: 'bg-orange-100 text-orange-900',
+    critical: 'bg-red-600 text-white',
   };
 
   readonly statuses: IssueStatus[] = ['todo', 'in_progress', 'done', 'closed'];

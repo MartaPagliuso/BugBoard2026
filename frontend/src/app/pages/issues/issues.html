@@ -15,7 +15,7 @@
           fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M5 12h14" /><path d="M12 5v14" />
         </svg>
-        Nuova Issue
+        Nuova Segnalazione
       </a>
     }
   </div>
@@ -69,26 +69,35 @@
       Risolte
     </button>
 
+    @if(!isViewer()) {
+      <span class="w-px h-4 bg-line mx-1"></span>
+
+      <button type="button" (click)="toggleOnlyMine()" [class]="onlyMine() ? 'bg-blue-700 text-white border-blue-700' : 'bg-white text-ink-mid border-line'"
+        class="text-[12.5px] px-2.5 py-1 rounded-full border cursor-pointer transition-colors">
+        Assegnate a me
+      </button>
+    }
+
     <span class="w-px h-4 bg-line mx-1"></span>
 
     <!-- SEZIONE RICERCA ISSUE IN BASE AL TIPO -->
-    <select [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event || null)"
+    <select [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)"
       class="text-[12.5px] px-2.5 py-1 rounded-full border border-line bg-white text-ink-mid cursor-pointer outline-none">
       <option [ngValue]="null">Tutti i tipi</option>
-      <option value="bug">Bug</option>
-      <option value="question">Domanda</option>
-      <option value="documentation">Documentazione</option>
-      <option value="feature">Funzionalità</option>
+      <option [ngValue]="'bug'">Bug</option>
+      <option [ngValue]="'question'">Domanda</option>
+      <option [ngValue]="'documentation'">Documentazione</option>
+      <option [ngValue]="'feature'">Funzionalità</option>
     </select>
 
     <!-- SEZIONE RICERCA ISSUE IN BASE ALLA PRIORITÀ -->
-    <select [ngModel]="priorityFilter()" (ngModelChange)="priorityFilter.set($event || null)"
+    <select [ngModel]="priorityFilter()" (ngModelChange)="priorityFilter.set($event)"
       class="text-[12.5px] px-2.5 py-1 rounded-full border border-line bg-white text-ink-mid cursor-pointer outline-none">
       <option [ngValue]="null">Tutte le priorità</option>
-      <option value="critical">Critica</option>
-      <option value="high">Alta</option>
-      <option value="medium">Media</option>
-      <option value="low">Bassa</option>
+      <option [ngValue]="'critical'">Critica</option>
+      <option [ngValue]="'high'">Alta</option>
+      <option [ngValue]="'medium'">Media</option>
+      <option [ngValue]="'low'">Bassa</option>
     </select>
   </div>
 

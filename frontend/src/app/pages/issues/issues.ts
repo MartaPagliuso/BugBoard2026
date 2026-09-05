@@ -24,7 +24,10 @@ export class Issues {
   typeFilter = signal<IssueType | null>(null);
   priorityFilter = signal<IssuePriority | null>(null);
   loading = signal(true);
-
+  assigneeFilter = signal<string | null> (null);
+  
+  readonly currentUser = this.auth.currentUser;
+  readonly onlyMine = computed(() => this.assigneeFilter() !== null);
   readonly issues = signal<Issue[]>([]);
 
   page = signal(1);
@@ -36,11 +39,10 @@ export class Issues {
     status: this.statusFilter() ?? undefined,
     type: this.typeFilter() ?? undefined,
     priority: this.priorityFilter() ?? undefined,
+    assigneeId: this.assigneeFilter() ?? undefined,
   }));
 
   readonly totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.limit)));
-
-  
 
   constructor() {
     toObservable(computed(() => ({ filters: this.filters(), page: this.page() })))
@@ -61,6 +63,7 @@ export class Issues {
       this.statusFilter();
       this.typeFilter();
       this.priorityFilter();
+      this.assigneeFilter();
       untracked(() => this.page.set(1));
     });
   }
@@ -89,7 +92,7 @@ export class Issues {
   readonly priorityClass: Record<IssuePriority, string> = {
     low: 'bg-gray-100 text-gray-700',
     medium: 'bg-amber-50 text-amber-800',
-    high: 'bg-red-50 text-red-800',
+    high: 'bg-orange-100 text-orange-900',
     critical: 'bg-red-100 text-red-900',
   };
 
@@ -99,6 +102,10 @@ export class Issues {
     documentation: 'Documentazione',
     feature: 'Funzionalità',
   };
+
+  toggleOnlyMine() {
+    this.assigneeFilter.set(this.onlyMine() ? null : this.currentUser()?.id ?? null);
+  }
   
   /**
    * Metodo che prende solo le iniziali di un utente

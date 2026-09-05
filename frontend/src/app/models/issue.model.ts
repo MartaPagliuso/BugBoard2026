@@ -32,6 +32,7 @@ export interface IssueFilters {
   status?: IssueStatus;
   type?: IssueType;
   priority?: IssuePriority;
+  assigneeId?: string;
 }
 
 export interface PaginatedIssues {

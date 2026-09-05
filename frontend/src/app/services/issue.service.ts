@@ -20,6 +20,7 @@ export class IssueService {
     if (filters.status) params = params.set('status', filters.status);
     if (filters.type) params = params.set('type', filters.type);
     if (filters.priority) params = params.set('priority', filters.priority);
+    if (filters.assigneeId) params = params.set('assigneeId', filters.assigneeId);
 
     return this.http.get<PaginatedIssues>(this.base, { params });
   }
